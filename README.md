@@ -51,6 +51,8 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 outputs["text"][:200]
 ```
 
+*Time to transcribe the entire podcast*: **31min 1s**
+
 ## Batching
 
 ```python
@@ -61,6 +63,13 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 
 outputs["text"][:200]
 ```
+
+Output:
+```
+We have been a misunderstood and badly mocked org for a long time. When we started, we announced the org at the end of 2015 and said we were going to work on AGI, people thought we were batshit insan
+```
+
+*Time to transcribe the entire podcast*: **13min 19s**
 
 ## Half-Precision
 
@@ -79,6 +88,8 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 
 outputs["text"][:200]
 ```
+
+*Time to transcribe the entire podcast*: **6min 13s**
 
 ## BetterTransformer w/ Optimum
 
@@ -99,3 +110,5 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 
 outputs["text"][:200]
 ```
+
+*Time to transcribe the entire podcast*: **5min 2s**
