@@ -2,7 +2,25 @@
 
 Powered by 🤗 *Transformers* & *Optimum*
 
-**TL;DR** - Transcribe **300** minutes (5 hours) of audio in less than **10** minutes - with (OpenAI's Whisper Large v2)[https://huggingface.co/openai/whisper-large-v2]. Blazingly fast transcription is now a reality!⚡️
+**TL;DR** - Transcribe **300** minutes (5 hours) of audio in less than **10** minutes - with [OpenAI's Whisper Large v2](https://huggingface.co/openai/whisper-large-v2). Blazingly fast transcription is now a reality!⚡️
+
+Basically all you need to do is this:
+
+```python
+pipe = pipeline("automatic-speech-recognition",
+                "openai/whisper-large-v2",
+                torch_dtype=torch.float16,
+                device="cuda:0")
+
+pipe.model = pipe.model.to_bettertransformer()
+
+outputs = pipe("<FILE_NAME>",
+               chunk_length_s=30,
+               batch_size=24,
+               return_timestamps=True)
+
+outputs["text"]
+```
 
 Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU]()! 👇
 
@@ -107,7 +125,7 @@ pipe.model = pipe.model.to_bettertransformer()
 outputs = pipe("sam_altman_lex_podcast_367.flac",
                chunk_length_s=30,
                batch_size=24,
-               return_timestamps=True,)["text"][:200]
+               return_timestamps=True)
 
 outputs["text"][:200]
 ```
