@@ -32,6 +32,8 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU]()
 | Transformers (`fp16` + `batching [16]` + `bettertransformer`) | ~5.42 (*5 min 42 sec*)            |
 | Transformers (`fp16` + `batching [24]` + `bettertransformer`) | ~5 (*5 min 2 sec*)            |
 
+### Let's go!!
+
 Here-in, we'll dive into optimisations that can make Whisper faster for fun and profit! Our goal is to be able to transcribe a 2-3 hour long audio in the fastest amount of time possible. We'll start with the most basic usage and work our way up to make it fast!
 
 The only fitting test audio to use for our benchmark would be [Lex interviewing Sam Altman](https://www.youtube.com/watch?v=L_Guz73e6fw&t=8s). We'll use the audio file corresponding to his podcast. I uploaded it on a wee dataset on the hub [here](https://huggingface.co/datasets/reach-vb/random-audios/blob/main/sam_altman_lex_podcast_367.flac).
