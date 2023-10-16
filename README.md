@@ -46,7 +46,9 @@ pipe = pipeline("automatic-speech-recognition",
 ```python
 outputs = pipe("sam_altman_lex_podcast_367.flac", 
                chunk_length_s=30,
-               return_timestamps=True)["text"][:200]
+               return_timestamps=True)
+
+outputs["text"][:200]
 ```
 
 ## Batching
@@ -55,7 +57,9 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 outputs = pipe("sam_altman_lex_podcast_367.flac", 
                chunk_length_s=30,
                batch_size=8,
-               return_timestamps=True)["text"][:200]
+               return_timestamps=True)
+
+outputs["text"][:200]
 ```
 
 ## Half-Precision
@@ -64,14 +68,16 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 pipe = pipeline("automatic-speech-recognition",
                 "openai/whisper-large-v2",
                 torch_dtype=torch.float16,
-                device="cuda:0")
+                device="cuda:0")                
 ```
 
 ```python
 outputs = pipe("sam_altman_lex_podcast_367.flac",
                chunk_length_s=30,
                batch_size=16,
-               return_timestamps=True)["text"][:200]
+               return_timestamps=True)
+
+outputs["text"][:200]
 ```
 
 ## BetterTransformer w/ Optimum
@@ -88,6 +94,8 @@ pipe.model = pipe.model.to_bettertransformer()
 ```python
 outputs = pipe("sam_altman_lex_podcast_367.flac",
                chunk_length_s=30,
-               batch_size=16,
+               batch_size=24,
                return_timestamps=True,)["text"][:200]
+
+outputs["text"][:200]
 ```
