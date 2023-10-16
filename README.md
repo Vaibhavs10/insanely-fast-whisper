@@ -49,6 +49,10 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 
 outputs["text"][:200]
 ```
+Output:
+```
+We have been a misunderstood and badly mocked org for a long time. When we started, we announced the org at the end of 2015 and said we were going to work on AGI, people thought we were batshit insan
+```
 
 *Time to transcribe the entire podcast*: **31min 1s**
 
@@ -61,11 +65,6 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
                return_timestamps=True)
 
 outputs["text"][:200]
-```
-
-Output:
-```
-We have been a misunderstood and badly mocked org for a long time. When we started, we announced the org at the end of 2015 and said we were going to work on AGI, people thought we were batshit insan
 ```
 
 *Time to transcribe the entire podcast*: **13min 19s**
