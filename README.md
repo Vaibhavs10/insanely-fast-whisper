@@ -33,7 +33,7 @@ Let's download the audio file corresponding to the podcast.
 wget https://huggingface.co/datasets/reach-vb/random-audios/resolve/main/sam_altman_lex_podcast_367.flac
 ```
 
-## Base case
+## Base Case
 
 ```python
 import torch
