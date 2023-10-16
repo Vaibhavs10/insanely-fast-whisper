@@ -8,12 +8,11 @@ Not convinced? Here are some benchmarks we ran on a free Google Colab T4 GPU! ðŸ
 
 | Optimisation type    | Inference time |
 |------------------|------------------|
-| Transformers (`fp32`)             | <1%              |
-| Transformers (`fp16`)         | <0.9%            |
-| Transformers (`fp16` + `batching`) | 100%             |
-| Transformers (`fp16` + `batching` + `bettertransformer`) | 100%             |
-| faster_whisper (`fp16`) | 100%             |
-| faster_whisper (`int8_fp16`) | 100%             |
+| Transformers (`fp32`)             | ~31 (31 min 1 sec)             |
+| Transformers (`fp32` + `batching [8]`)           | ~13 (13 min 19 sec)             |
+| Transformers (`fp16` + `batching [16]`) | ~6 (6 min 13 sec)             |
+| Transformers (`fp16` + `batching [16]` + `bettertransformer`) | ~5.42 (5 min 42 sec)            |
+| Transformers (`fp16` + `batching [24]` + `bettertransformer`) | ~5 (5 min 2 sec)            |
 
 Here-in, we'll dive into optimisations that can make Whisper faster for fun and profit! Our goal is to be able to transcribe a 2-3 hour long audio in the fastest amount of time possible. We'll start with the most basic usage and work our way up to make it fast!
 
@@ -24,7 +23,7 @@ The only fitting test audio to use for our benchmark would be [Lex interviewing 
 ```python
 pip install -q --upgrade torch torchvision torchaudio
 pip install -q git+https://github.com/huggingface/transformers
-pip install -q accelerate optimum bitsandbytes
+pip install -q accelerate optimum
 pip install -q ipython-autotime
 ```
 
