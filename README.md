@@ -22,7 +22,7 @@ outputs = pipe("<FILE_NAME>",
 outputs["text"]
 ```
 
-Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU]()! 👇
+Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](https://colab.research.google.com/github/Vaibhavs10/insanely-fast-whisper/blob/main/infer_transformers_whisper_large_v2.ipynb)! 👇
 
 | Optimisation type    | Inference time |
 |------------------|------------------|
