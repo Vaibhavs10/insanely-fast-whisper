@@ -1,10 +1,10 @@
 # Insanely Fast Whisper
 
-Powered by 🤗 Transformers & Optimum
+Powered by 🤗 *Transformers* & *Optimum*
 
-**TL;DR** - A one stop shop walkthrough, to fast inference with Whisper (large) **5x faster** on a consumer GPU with **less than 8GB GPU VRAM**, all with comparable performance to full-finetuning. ⚡️
+**TL;DR** - Transcribe **300** minutes (5 hours) of audio in less than **10** minutes - with (OpenAI's Whisper Large v2)[https://huggingface.co/openai/whisper-large-v2]. Blazingly fast transcription is now a reality!⚡️
 
-Not convinced? Here are some benchmarks we ran on a free Google Colab T4 GPU! 👇
+Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU]()! 👇
 
 | Optimisation type    | Inference time |
 |------------------|------------------|
