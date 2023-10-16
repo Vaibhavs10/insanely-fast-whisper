@@ -24,7 +24,7 @@ outputs["text"]
 
 Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](https://colab.research.google.com/github/Vaibhavs10/insanely-fast-whisper/blob/main/infer_transformers_whisper_large_v2.ipynb)! 👇
 
-| Optimisation type    | Inference time |
+| Optimisation type    | Time to Transcribe (150 mins of Audio) |
 |------------------|------------------|
 | Transformers (`fp32`)             | ~31 (*31 min 1 sec*)             |
 | Transformers (`fp32` + `batching [8]`)           | ~13 (*13 min 19 sec*)             |
