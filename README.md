@@ -8,11 +8,11 @@ Not convinced? Here are some benchmarks we ran on a free Google Colab T4 GPU! ðŸ
 
 | Optimisation type    | Inference time |
 |------------------|------------------|
-| Transformers (`fp32`)             | ~31 (31 min 1 sec)             |
-| Transformers (`fp32` + `batching [8]`)           | ~13 (13 min 19 sec)             |
+| Transformers (`fp32`)             | ~31 (*31 min 1 sec*)             |
+| Transformers (`fp32` + `batching [8]`)           | ~13 (*13 min 19 sec*)             |
 | Transformers (`fp16` + `batching [16]`) | ~6 (6 min 13 sec)             |
-| Transformers (`fp16` + `batching [16]` + `bettertransformer`) | ~5.42 (5 min 42 sec)            |
-| Transformers (`fp16` + `batching [24]` + `bettertransformer`) | ~5 (5 min 2 sec)            |
+| Transformers (`fp16` + `batching [16]` + `bettertransformer`) | ~5.42 (*5 min 42 sec*)            |
+| Transformers (`fp16` + `batching [24]` + `bettertransformer`) | ~5 (*5 min 2 sec*)            |
 
 Here-in, we'll dive into optimisations that can make Whisper faster for fun and profit! Our goal is to be able to transcribe a 2-3 hour long audio in the fastest amount of time possible. We'll start with the most basic usage and work our way up to make it fast!
 
@@ -26,6 +26,8 @@ pip install -q git+https://github.com/huggingface/transformers
 pip install -q accelerate optimum
 pip install -q ipython-autotime
 ```
+
+Let's download the audio file corresponding to the podcast.
 
 ```python
 wget https://huggingface.co/datasets/reach-vb/random-audios/resolve/main/sam_altman_lex_podcast_367.flac
@@ -49,7 +51,8 @@ outputs = pipe("sam_altman_lex_podcast_367.flac",
 
 outputs["text"][:200]
 ```
-Output:
+
+Sample output:
 ```
 We have been a misunderstood and badly mocked org for a long time. When we started, we announced the org at the end of 2015 and said we were going to work on AGI, people thought we were batshit insan
 ```
