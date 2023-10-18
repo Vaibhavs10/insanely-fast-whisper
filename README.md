@@ -138,7 +138,11 @@ outputs["text"][:200]
 
 ## Roadmap
 
-[ ] Add benchmarks for Whisper.cpp
-[ ] Add benchmarks for 4-bit inference
-[ ] Add a light CLI script
-[ ] Deployment script with Inference API
+- [ ] Add benchmarks for Whisper.cpp
+- [ ] Add benchmarks for 4-bit inference
+- [ ] Add a light CLI script
+- [ ] Deployment script with Inference API
+
+## Community showcase
+
+@ochen1 created a brilliant MVP for a CLI here: https://github.com/ochen1/insanely-fast-whisper-cli (Try it out now!)
