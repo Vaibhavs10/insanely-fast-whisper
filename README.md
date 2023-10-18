@@ -32,7 +32,7 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](h
 | Transformers (`fp16` + `batching [16]` + `bettertransformer`) | ~5.42 (*5 min 42 sec*)            |
 | Transformers (`fp16` + `batching [24]` + `bettertransformer`) | ~5 (*5 min 2 sec*)            |
 | Faster Whisper (`fp16` + `beam_size [1]`) | ~9.23 (*9 min 23 sec*)            |
-| Faster Whisper (`8-bit`) + `beam_size [1]`) | ~8 (*8 min 15 sec*)            |
+| Faster Whisper (`8-bit` + `beam_size [1]`) | ~8 (*8 min 15 sec*)            |
 
 ### Let's go!!
 
@@ -135,3 +135,10 @@ outputs["text"][:200]
 ```
 
 *Time to transcribe the entire podcast*: **5min 2s**
+
+## Roadmap
+
+[ ] Add benchmarks for Whisper.cpp
+[ ] Add benchmarks for 4-bit inference
+[ ] Add a light CLI script
+[ ] Deployment script with Inference API
