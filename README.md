@@ -7,6 +7,9 @@ Powered by 🤗 *Transformers* & *Optimum*
 Basically all you need to do is this:
 
 ```python
+import torch
+from transformers import pipeline
+
 pipe = pipeline("automatic-speech-recognition",
                 "openai/whisper-large-v2",
                 torch_dtype=torch.float16,
