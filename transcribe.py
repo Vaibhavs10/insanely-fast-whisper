@@ -21,7 +21,7 @@ def main(file_name: str, device_id: str, transcript_path: str):
     outputs = pipe(file_name, chunk_length_s=30, batch_size=24, return_timestamps=True)
 
     with open(transcript_path, "w") as fp:
-        json.dump(sample, fp)
+        json.dump(outputs, fp)
 
 
 if __name__ == "__main__":
