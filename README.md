@@ -37,7 +37,24 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](h
 | Faster Whisper (`fp16` + `beam_size [1]`) | ~9.23 (*9 min 23 sec*)            |
 | Faster Whisper (`8-bit` + `beam_size [1]`) | ~8 (*8 min 15 sec*)            |
 
-### Let's go!!
+## 🆕 You can now access blazingly fast transcriptions via your terminal! ⚡️
+
+We've added a v1 CLI to enable fast transcriptions. Here's how you can use it.
+
+### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Transcribe your audio
+
+``bash
+python transcribe.py --file_name <filename or URL>
+```
+Note: The CLI is opiniated and currently only works for Nvidia GPUs. Make sure to checkout the defaults and the list of options you can play around with to maximise your transcription throughput. Run `python transcribe.py --help` to get all the CLI arguments. 
+
+### How does this all work?
 
 Here-in, we'll dive into optimisations that can make Whisper faster for fun and profit! Our goal is to be able to transcribe a 2-3 hour long audio in the fastest amount of time possible. We'll start with the most basic usage and work our way up to make it fast!
 
