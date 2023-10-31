@@ -7,15 +7,16 @@ from transformers import pipeline
 from typing_extensions import Annotated
 
 # TODO: Check if optimum is installed
+# TODO: Add a function to check hardware/ GPU and choose an appropriate model
 
 
 def main(
     file_name: Annotated[str, typer.Argument()],
+    device_id: Annotated[str, typer.Argument()],
+    transcript_path: Annotated[str, typer.Argument()],    
     model_name: Annotated[str, typer.Argument()] = "openai/whisper-large-v2",
     task: Annotated[str, typer.Argument()] = "transcribe",
     language: Annotated[str, typer.Argument()] = "en",
-    device_id: Annotated[str, typer.Argument()],
-    transcript_path: Annotated[str, typer.Argument()],
 ):
     pipe = pipeline(
         task="automatic-speech-recognition",
