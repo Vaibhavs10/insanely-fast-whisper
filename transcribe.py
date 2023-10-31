@@ -5,10 +5,10 @@ import torch
 
 from transformers import pipeline
 
-# TODO: Check if accelerate is installed
+# TODO: Check if optimum is installed
 
 
-def main(file_name: str, device_id: str, transcript_path: str):
+def main(file_name: str, task:str, language:str, device_id: str, transcript_path: str):
     pipe = pipeline(
         "automatic-speech-recognition",
         "openai/whisper-large-v2",
@@ -18,7 +18,7 @@ def main(file_name: str, device_id: str, transcript_path: str):
 
     pipe.model = pipe.model.to_bettertransformer()
 
-    outputs = pipe(file_name, chunk_length_s=30, batch_size=24, return_timestamps=True)
+    outputs = pipe(file_name, chunk_length_s=30, batch_size=24, generate_kwargs={"task": task, "language": language}, return_timestamps=True)
 
     with open(transcript_path, "w") as fp:
         json.dump(outputs, fp)
