@@ -4,14 +4,22 @@ import typer
 import torch
 
 from transformers import pipeline
+from typing_extensions import Annotated
 
 # TODO: Check if optimum is installed
 
 
-def main(file_name: str, task:str, language:str, device_id: str, transcript_path: str):
+def main(
+    file_name: Annotated[str, typer.Argument()], 
+    model: Annotated[str, typer.Argument()] = "openai/whisper-large-v2", 
+    task: Annotated[str, typer.Argument()] = "transcribe", 
+    language: Annotated[str, typer.Argument()] = "en", 
+    device_id: Annotated[str, typer.Argument()], 
+    transcript_path: Annotated[str, typer.Argument()]):
+
     pipe = pipeline(
         "automatic-speech-recognition",
-        "openai/whisper-large-v2",
+        model",
         torch_dtype=torch.float16,
         device=f"cuda:{device_id}",
     )
