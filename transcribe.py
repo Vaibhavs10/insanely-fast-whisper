@@ -18,7 +18,7 @@ def main(
     transcript_path: Annotated[str, typer.Argument()]):
 
     pipe = pipeline(
-        "automatic-speech-recognition",
+        task="automatic-speech-recognition",
         model=model_name,
         torch_dtype=torch.float16,
         device=f"cuda:{device_id}",
