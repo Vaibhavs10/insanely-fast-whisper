@@ -76,3 +76,5 @@ outputs = pipe(
 
 with open(args.transcript_path, "w") as fp:
     json.dump(outputs, fp)
+
+print(f"Voila! Your file has been transcribed go check it out over here! {args.transcript_path}")
