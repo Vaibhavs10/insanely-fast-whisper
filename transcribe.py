@@ -10,13 +10,13 @@ from typing_extensions import Annotated
 
 
 def main(
-    file_name: Annotated[str, typer.Argument()], 
-    model_name: Annotated[str, typer.Argument()] = "openai/whisper-large-v2", 
-    task: Annotated[str, typer.Argument()] = "transcribe", 
-    language: Annotated[str, typer.Argument()] = "en", 
-    device_id: Annotated[str, typer.Argument()], 
-    transcript_path: Annotated[str, typer.Argument()]):
-
+    file_name: Annotated[str, typer.Argument()],
+    model_name: Annotated[str, typer.Argument()] = "openai/whisper-large-v2",
+    task: Annotated[str, typer.Argument()] = "transcribe",
+    language: Annotated[str, typer.Argument()] = "en",
+    device_id: Annotated[str, typer.Argument()],
+    transcript_path: Annotated[str, typer.Argument()],
+):
     pipe = pipeline(
         task="automatic-speech-recognition",
         model=model_name,
@@ -27,14 +27,12 @@ def main(
     pipe.model = pipe.model.to_bettertransformer()
 
     outputs = pipe(
-        file_name, 
-        chunk_length_s=30, 
-        batch_size=24, 
-        generate_kwargs={
-            "task": task, 
-            "language": language
-            }, 
-        return_timestamps=True)
+        file_name,
+        chunk_length_s=30,
+        batch_size=24,
+        generate_kwargs={"task": task, "language": language},
+        return_timestamps=True,
+    )
 
     with open(transcript_path, "w") as fp:
         json.dump(outputs, fp)
