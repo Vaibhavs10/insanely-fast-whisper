@@ -5,6 +5,7 @@ import torch
 
 from transformers import pipeline
 from typing_extensions import Annotated
+from typing import Optional
 
 # TODO: Check if optimum is installed
 # TODO: Add a function to check hardware/ GPU and choose an appropriate model
@@ -14,9 +15,9 @@ def main(
     file_name: Annotated[str, typer.Argument()],
     device_id: Annotated[str, typer.Argument()],
     transcript_path: Annotated[str, typer.Argument()],    
-    model_name: Annotated[str, typer.Argument()] = "openai/whisper-large-v2",
-    task: Annotated[str, typer.Argument()] = "transcribe",
-    language: Annotated[str, typer.Argument()] = "en",
+    model_name: Annotated[Optional[str], typer.Argument()] = "openai/whisper-large-v2",
+    task: Annotated[Optional[str], typer.Argument()] = "transcribe",
+    language: Annotated[Optional[str], typer.Argument()] = "en",
 ):
     pipe = pipeline(
         task="automatic-speech-recognition",
