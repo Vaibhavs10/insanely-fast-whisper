@@ -12,12 +12,12 @@ from typing import Optional
 
 
 def main(
-    file_name: Annotated[str, typer.Argument(default=None)],
-    device_id: Annotated[str, typer.Argument(default=None)],
-    transcript_path: Annotated[str, typer.Argument(default=None)],    
-    model_name: Annotated[Optional[str], typer.Option(default="openai/whisper-large-v2")],
-    task: Annotated[Optional[str], typer.Option(default="transcribe")],
-    language: Annotated[Optional[str], typer.Option(default="en")],
+    file_name: str,
+    device_id: str,
+    transcript_path: str,    
+    model_name: str,
+    task: str,
+    language: str,
 ):
     pipe = pipeline(
         task="automatic-speech-recognition",
