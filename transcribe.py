@@ -28,6 +28,7 @@ parser.add_argument(
 parser.add_argument(
     "--model_name",
     required=False,
+    default="openai/whisper-large-v2",
     type=str,
     help="Name of the pretrained model/ checkpoint to use (default: openai/whisper-large-v2)",
 )
@@ -44,7 +45,7 @@ parser.add_argument(
     required=False,
     type=str,
     default="en",
-    help='Language of the input speech (default: "en" (en))',
+    help='Language of the input speech (default: "en" (English))',
 )
 
 args = parser.parse_args()
