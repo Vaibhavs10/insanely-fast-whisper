@@ -38,7 +38,7 @@ parser.add_argument(
     default="transcribe",
     type=str,
     choices=["transcribe", "translate"],
-    help="Task to perform, transcribe or translate to another language. (default: transcribe)",
+    help="Task to perform: transcribe or translate to another language. (default: transcribe)",
 )
 parser.add_argument(
     "--language",
