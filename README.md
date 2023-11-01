@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 ### Transcribe your audio
 
-``bash
+```bash
 python transcribe.py --file_name <filename or URL>
 ```
 Note: The CLI is opiniated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `python transcribe.py --help` to get all the CLI arguments. 
