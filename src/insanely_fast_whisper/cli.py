@@ -52,29 +52,33 @@ parser.add_argument(
     required=False,
     type=int,
     default=24,
-    help='Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)',
+    help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
 )
 
-args = parser.parse_args()
 
-pipe = pipeline(
-    "automatic-speech-recognition",
-    model=args.model_name,
-    torch_dtype=torch.float16,
-    device=f"cuda:{args.device_id}",
-)
+def main():
+    args = parser.parse_args()
 
-pipe.model = pipe.model.to_bettertransformer()
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=args.model_name,
+        torch_dtype=torch.float16,
+        device=f"cuda:{args.device_id}",
+    )
 
-outputs = pipe(
-    args.file_name,
-    chunk_length_s=30,
-    batch_size=args.batch_size,
-    generate_kwargs={"task": args.task, "language": args.language},
-    return_timestamps=True,
-)
+    pipe.model = pipe.model.to_bettertransformer()
 
-with open(args.transcript_path, "w") as fp:
-    json.dump(outputs, fp)
+    outputs = pipe(
+        args.file_name,
+        chunk_length_s=30,
+        batch_size=args.batch_size,
+        generate_kwargs={"task": args.task, "language": args.language},
+        return_timestamps=True,
+    )
 
-print(f"Voila! Your file has been transcribed go check it out over here! {args.transcript_path}")
+    with open(args.transcript_path, "w") as fp:
+        json.dump(outputs, fp)
+
+    print(
+        f"Voila! Your file has been transcribed go check it out over here! {args.transcript_path}"
+    )
