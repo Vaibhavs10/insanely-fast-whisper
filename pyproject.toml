@@ -3,7 +3,7 @@ name = "insanely-fast-whisper"
 version = "0.0.1"
 description = "A very fast whisper CLI"
 authors = [
-    { name = "VB", email = "vaibhav@europython.eu" },
+    { name = "VB", email = "reachvaibhavs10@gmail.com" },
     { name = "Patrick Arminio", email = "patrick.arminio@gmail.com" },
 ]
 dependencies = [
