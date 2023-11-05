@@ -40,19 +40,14 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](h
 
 ## 🆕 You can now access blazingly fast transcriptions via your terminal! ⚡️
 
-We've added a v1 CLI to enable fast transcriptions. Here's how you can use it.
-
-### Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
+We've added a CLI to enable fast transcriptions. Here's how you can use it:
 
 ### Transcribe your audio
 
 ```bash
-python transcribe.py --file_name <filename or URL>
+pipx run insanely-fast-whisper --file_name <filename or URL>
 ```
+
 Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `python transcribe.py --help` to get all the CLI arguments. 
 
 ### How does this all work?
@@ -88,7 +83,7 @@ pipe = pipeline("automatic-speech-recognition",
 ```
 
 ```python
-outputs = pipe("sam_altman_lex_podcast_367.flac", 
+outputs = pipe("sam_altman_lex_podcast_367.flac",
                chunk_length_s=30,
                return_timestamps=True)
 
@@ -105,7 +100,7 @@ We have been a misunderstood and badly mocked org for a long time. When we start
 ## Batching
 
 ```python
-outputs = pipe("sam_altman_lex_podcast_367.flac", 
+outputs = pipe("sam_altman_lex_podcast_367.flac",
                chunk_length_s=30,
                batch_size=8,
                return_timestamps=True)
@@ -121,7 +116,7 @@ outputs["text"][:200]
 pipe = pipeline("automatic-speech-recognition",
                 "openai/whisper-large-v2",
                 torch_dtype=torch.float16,
-                device="cuda:0")                
+                device="cuda:0")
 ```
 
 ```python

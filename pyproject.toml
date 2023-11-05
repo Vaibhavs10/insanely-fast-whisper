@@ -1,0 +1,25 @@
+[project]
+name = "insanely-fast-whisper"
+version = "0.0.2"
+description = "A very fast whisper CLI"
+authors = [
+    { name = "VB", email = "reachvaibhavs10@gmail.com" },
+    { name = "Patrick Arminio", email = "patrick.arminio@gmail.com" },
+]
+dependencies = [
+    "transformers",
+    "optimum",
+    "accelerate",
+    "setuptools>=68.2.2",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = { text = "MIT" }
+
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project.scripts]
+insanely-fast-whisper = "insanely_fast_whisper.cli:main"
