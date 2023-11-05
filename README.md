@@ -31,7 +31,19 @@ Run inference from any path on your computer:
 insanely-fast-whisper --file-name <filename or URL>
 ```
 
-Don't want to install? Just use `pipx run`:
+🔥 You can run Whisper w/ [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) from this CLI too:
+
+```bash
+insanely-fast-whisper --file-name <filename or URL> --flash True 
+```
+
+🌟 You can run [distil-whisper](https://huggingface.co/distil-whisper) directly from this CLI too:
+
+```bash
+insanely-fast-whisper --model-name distil-whisper/large-v2 --file-name <filename or URL> 
+```
+
+Don't want to install `insanely-fast-whisper`? Just use `pipx run`:
 
 ```bash
 pipx run insanely-fast-whisper --file-name <filename or URL>
@@ -39,11 +51,6 @@ pipx run insanely-fast-whisper --file-name <filename or URL>
 
 Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments and defaults. 
 
-🌟 You can run [distil-whisper](https://huggingface.co/distil-whisper) directly from this CLI too:
-
-```bash
-pipx run insanely-fast-whisper --model-name distil-whisper/large-v2 --file-name <filename or URL> 
-```
 
 ## How to use it without a CLI?
 
