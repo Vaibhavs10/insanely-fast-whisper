@@ -6,27 +6,27 @@ from transformers import pipeline
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
-    "--file_name",
+    "--file-name",
     required=True,
     type=str,
     help="Path or URL to the audio file to be transcribed.",
 )
 parser.add_argument(
-    "--device_id",
+    "--device-id",
     required=False,
     default="0",
     type=str,
     help='Device ID for your GPU (just pass the device ID number). (default: "0")',
 )
 parser.add_argument(
-    "--transcript_path",
+    "--transcript-path",
     required=False,
     default="output.json",
     type=str,
     help="Path to save the transcription output. (default: output.json)",
 )
 parser.add_argument(
-    "--model_name",
+    "--model-name",
     required=False,
     default="openai/whisper-large-v2",
     type=str,
@@ -48,10 +48,17 @@ parser.add_argument(
     help='Language of the input audio. (default: "en" (English))',
 )
 parser.add_argument(
-    "--batch_size",
+    "--batch-size",
     required=False,
     type=int,
     default=24,
+    help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
+)
+parser.add_argument(
+    "--flash",
+    required=False,
+    type=bool,
+    default=False,
     help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
 )
 
@@ -59,14 +66,23 @@ parser.add_argument(
 def main():
     args = parser.parse_args()
 
-    pipe = pipeline(
-        "automatic-speech-recognition",
-        model=args.model_name,
-        torch_dtype=torch.float16,
-        device=f"cuda:{args.device_id}",
-    )
+    if args.flash == True:
+        pipe = pipeline(
+            "automatic-speech-recognition",
+            model=args.model_name,
+            torch_dtype=torch.float16,
+            device=f"cuda:{args.device_id}",
+            model_kwargs={"use_flash_attention_2": True},
+        )
+    else:
+        pipe = pipeline(
+            "automatic-speech-recognition",
+            model=args.model_name,
+            torch_dtype=torch.float16,
+            device=f"cuda:{args.device_id}",
+        )
 
-    pipe.model = pipe.model.to_bettertransformer()
+        pipe.model = pipe.model.to_bettertransformer()
 
     outputs = pipe(
         args.file_name,
