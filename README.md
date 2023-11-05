@@ -15,11 +15,9 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](/
 | Faster Whisper (`fp16` + `beam_size [1]`) | ~9.23 (*9 min 23 sec*)            |
 | Faster Whisper (`8-bit` + `beam_size [1]`) | ~8 (*8 min 15 sec*)            |
 
-## 🆕 You can now access blazingly fast transcriptions via your terminal! ⚡️
+## 🆕 Blazingly fast transcriptions via your terminal! ⚡️
 
 We've added a CLI to enable fast transcriptions. Here's how you can use it:
-
-### Transcribe your audio
 
 Install `insanely-fast-whisper` with `pipx`:
 
@@ -40,6 +38,12 @@ pipx run insanely-fast-whisper --file-name <filename or URL>
 ```
 
 Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments and defaults. 
+
+🌟 You can run [distil-whisper](https://huggingface.co/distil-whisper) directly from this CLI too:
+
+```bash
+pipx run insanely-fast-whisper --model-name distil-whisper/large-v2 --file-name <filename or URL> 
+```
 
 ### How to use it without a CLI?
 
