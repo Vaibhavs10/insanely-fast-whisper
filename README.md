@@ -48,7 +48,7 @@ We've added a CLI to enable fast transcriptions. Here's how you can use it:
 pipx run insanely-fast-whisper --file_name <filename or URL>
 ```
 
-Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `python transcribe.py --help` to get all the CLI arguments. 
+Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `pipx run insanely-fast-whisper --help` to get all the CLI arguments. 
 
 ## Roadmap
 
