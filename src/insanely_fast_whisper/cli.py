@@ -6,27 +6,27 @@ from transformers import pipeline
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
-    "--file_name",
+    "--file-name",
     required=True,
     type=str,
     help="Path or URL to the audio file to be transcribed.",
 )
 parser.add_argument(
-    "--device_id",
+    "--device-id",
     required=False,
     default="0",
     type=str,
     help='Device ID for your GPU (just pass the device ID number). (default: "0")',
 )
 parser.add_argument(
-    "--transcript_path",
+    "--transcript-path",
     required=False,
     default="output.json",
     type=str,
     help="Path to save the transcription output. (default: output.json)",
 )
 parser.add_argument(
-    "--model_name",
+    "--model-name",
     required=False,
     default="openai/whisper-large-v2",
     type=str,
@@ -48,7 +48,7 @@ parser.add_argument(
     help='Language of the input audio. (default: "en" (English))',
 )
 parser.add_argument(
-    "--batch_size",
+    "--batch-size",
     required=False,
     type=int,
     default=24,
