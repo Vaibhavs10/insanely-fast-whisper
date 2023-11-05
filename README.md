@@ -45,7 +45,7 @@ Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure
 pipx run insanely-fast-whisper --model-name distil-whisper/large-v2 --file-name <filename or URL> 
 ```
 
-### How to use it without a CLI?
+## How to use it without a CLI?
 
 For older GPUs, all you need to run is:
 
@@ -90,8 +90,6 @@ outputs["text"]
 
 ## Roadmap
 
-- [ ] Add benchmarks for Whisper.cpp
-- [ ] Add benchmarks for 4-bit inference
 - [ ] Add a light CLI script
 - [ ] Deployment script with Inference API
 
