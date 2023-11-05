@@ -54,19 +54,35 @@ parser.add_argument(
     default=24,
     help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
 )
+parser.add_argument(
+    "--flash",
+    required=False,
+    type=bool,
+    default=False,
+    help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
+)
 
 
 def main():
     args = parser.parse_args()
 
-    pipe = pipeline(
-        "automatic-speech-recognition",
-        model=args.model_name,
-        torch_dtype=torch.float16,
-        device=f"cuda:{args.device_id}",
-    )
+    if args.flash == True:
+        pipe = pipeline(
+            "automatic-speech-recognition",
+            model=args.model_name,
+            torch_dtype=torch.float16,
+            device=f"cuda:{args.device_id}",
+            model_kwargs={"use_flash_attention_2": True},
+        )
+    else:
+        pipe = pipeline(
+            "automatic-speech-recognition",
+            model=args.model_name,
+            torch_dtype=torch.float16,
+            device=f"cuda:{args.device_id}",
+        )
 
-    pipe.model = pipe.model.to_bettertransformer()
+        pipe.model = pipe.model.to_bettertransformer()
 
     outputs = pipe(
         args.file_name,
