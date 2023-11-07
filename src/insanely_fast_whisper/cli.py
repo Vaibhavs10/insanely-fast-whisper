@@ -61,6 +61,14 @@ parser.add_argument(
     default=False,
     help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
 )
+parser.add_argument(
+    "--timestamp",
+    required=False,
+    type=str,
+    default="chunk",
+    choices=["chunk", "word"],
+    help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
+)
 
 
 def main():
