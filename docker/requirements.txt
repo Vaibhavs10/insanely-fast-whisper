@@ -1,6 +1,0 @@
-torch
-torchvision
-torchaudio
-git+https://github.com/huggingface/transformers
-accelerate
-optimum
