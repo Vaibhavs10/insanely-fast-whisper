@@ -94,7 +94,7 @@ def main():
 
     if args.timestamp == "word":
         ts = "word"
-    
+
     else:
         ts = True
 
