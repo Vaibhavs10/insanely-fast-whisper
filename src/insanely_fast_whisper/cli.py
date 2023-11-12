@@ -28,7 +28,7 @@ parser.add_argument(
 parser.add_argument(
     "--model-name",
     required=False,
-    default="openai/whisper-large-v2",
+    default="openai/whisper-large-v3",
     type=str,
     help="Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v2)",
 )
