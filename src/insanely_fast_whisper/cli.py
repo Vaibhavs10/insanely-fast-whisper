@@ -92,12 +92,18 @@ def main():
 
         pipe.model = pipe.model.to_bettertransformer()
 
+    if args.timestamp == "word":
+        ts = "word"
+    
+    else:
+        ts = True
+
     outputs = pipe(
         args.file_name,
         chunk_length_s=30,
         batch_size=args.batch_size,
         generate_kwargs={"task": args.task, "language": args.language},
-        return_timestamps=True,
+        return_timestamps=ts,
     )
 
     with open(args.transcript_path, "w") as fp:
