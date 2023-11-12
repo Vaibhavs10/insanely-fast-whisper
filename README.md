@@ -2,7 +2,7 @@
 
 Powered by 🤗 *Transformers*, *Optimum* & *flash-attn*
 
-**TL;DR** - Transcribe **300** minutes (5 hours) of audio in less than **5** minutes - with [OpenAI's Whisper Large v2](https://huggingface.co/openai/whisper-large-v2). Blazingly fast transcription is now a reality!⚡️
+**TL;DR** - Transcribe **300** minutes (5 hours) of audio in less than **98** seconds - with [OpenAI's Whisper Large v3](https://huggingface.co/openai/whisper-large-v3). Blazingly fast transcription is now a reality!⚡️
 
 Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](/notebooks/)! 👇
 
@@ -32,7 +32,7 @@ Run inference from any path on your computer:
 insanely-fast-whisper --file-name <filename or URL>
 ```
 
-🔥 You can run Whisper w/ [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) from this CLI too:
+🔥 You can run [Whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) w/ [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) from this CLI too:
 
 ```bash
 insanely-fast-whisper --file-name <filename or URL> --flash True 
@@ -98,7 +98,7 @@ outputs["text"]
 
 ## Roadmap
 
-- [ ] Add a light CLI script
+- [x] Add a light CLI script
 - [ ] Deployment script with Inference API
 
 ## Community showcase
