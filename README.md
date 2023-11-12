@@ -10,9 +10,9 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](/
 |------------------|------------------|
 | Transformers (`fp32`)             | ~31 (*31 min 1 sec*)             |
 | Transformers (`fp16` + `batching [24]` + `bettertransformer`) | ~5 (*5 min 2 sec*)            |
-| Transformers (`fp16` + `batching [24]` + `Flash Attention 2`) | ~2 (*1 min 38 sec*)            |
+| **Transformers (`fp16` + `batching [24]` + `Flash Attention 2`)** | **~2 (*1 min 38 sec*)**            |
 | distil-whisper (`fp16` + `batching [24]` + `bettertransformer`) | ~3 (*3 min 16 sec*)            |
-| distil-whisper (`fp16` + `batching [24]` + `Flash Attention 2`) | ~1 (*1 min 18 sec*)            |
+| **distil-whisper (`fp16` + `batching [24]` + `Flash Attention 2`)** | **~1 (*1 min 18 sec*)**           |
 | Faster Whisper (`fp16` + `beam_size [1]`) | ~9.23 (*9 min 23 sec*)            |
 | Faster Whisper (`8-bit` + `beam_size [1]`) | ~8 (*8 min 15 sec*)            |
 
