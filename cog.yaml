@@ -1,0 +1,22 @@
+# Configuration for Cog ⚙️
+# Reference: https://github.com/replicate/cog/blob/main/docs/yaml.md
+
+build:
+  gpu: true
+  system_packages:
+    - "ffmpeg"
+    - "ninja-build"
+  python_version: "3.11"
+  python_packages:
+    - "torch==2.0.1"
+    - "tqdm==4.66.1"
+    - "more-itertools==10.1.0"
+    - "transformers==4.35.0"
+    - "ffmpeg-python==0.2.0"
+    - "openai-whisper==20231106"
+    - "optimum==1.14.0"
+  run: 
+    - pip install packaging
+    - pip install flash-attn --no-build-isolation
+
+predict: "predict.py:Predictor"

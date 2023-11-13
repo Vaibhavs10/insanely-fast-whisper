@@ -16,6 +16,9 @@ Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](/
 | Faster Whisper (`fp16` + `beam_size [1]`) | ~9.23 (*9 min 23 sec*)            |
 | Faster Whisper (`8-bit` + `beam_size [1]`) | ~8 (*8 min 15 sec*)            |
 
+Try the Relicate demo here: [![Replicate](https://replicate.com/cjwbw/insanely-fast-whisper/badge)](https://replicate.com/cjwbw/insanely-fast-whisper) 
+
+
 ## 🆕 Blazingly fast transcriptions via your terminal! ⚡️
 
 We've added a CLI to enable fast transcriptions. Here's how you can use it:
