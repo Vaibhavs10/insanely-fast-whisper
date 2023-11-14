@@ -106,8 +106,8 @@ def main():
         return_timestamps=ts,
     )
 
-    with open(args.transcript_path, "w") as fp:
-        json.dump(outputs, fp)
+    with open(args.transcript_path, "w", encoding="utf8") as fp:
+        json.dump(outputs, fp, ensure_ascii=False)
 
     print(
         f"Voila! Your file has been transcribed go check it out over here! {args.transcript_path}"
