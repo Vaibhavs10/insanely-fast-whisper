@@ -30,7 +30,7 @@ parser.add_argument(
     required=False,
     default="openai/whisper-large-v3",
     type=str,
-    help="Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v2)",
+    help="Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v3)",
 )
 parser.add_argument(
     "--task",
