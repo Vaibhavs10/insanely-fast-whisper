@@ -2,7 +2,7 @@
 
 Powered by 🤗 *Transformers*, *Optimum* & *flash-attn*
 
-**TL;DR** - Transcribe **300** minutes (5 hours) of audio in less than **98** seconds - with [OpenAI's Whisper Large v3](https://huggingface.co/openai/whisper-large-v3). Blazingly fast transcription is now a reality!⚡️
+**TL;DR** - Transcribe **150** minutes (2.5 hours) of audio in less than **78** seconds - with [OpenAI's Whisper Large v3](https://huggingface.co/openai/whisper-large-v3). Blazingly fast transcription is now a reality!⚡️
 
 Not convinced? Here are some benchmarks we ran on a free [Google Colab T4 GPU](/notebooks/)! 👇
 
