@@ -3,7 +3,7 @@ import json
 import argparse
 import torch
 from transformers import pipeline
-from rich.progress import Progress, TimeElapsedColumn, BarColumn
+from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
