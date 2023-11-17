@@ -3,6 +3,7 @@ import json
 import argparse
 import torch
 from transformers import pipeline
+from rich.progress import Progress, TimeElapsedColumn, BarColumn
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
@@ -98,13 +99,20 @@ def main():
     else:
         ts = True
 
-    outputs = pipe(
-        args.file_name,
-        chunk_length_s=30,
-        batch_size=args.batch_size,
-        generate_kwargs={"task": args.task, "language": args.language},
-        return_timestamps=ts,
-    )
+    with Progress(
+        TextColumn("🤗 [progress.description]{task.description}"),
+        BarColumn(style="yellow1", pulse_style="white"),
+        TimeElapsedColumn(),
+    ) as progress:
+        progress.add_task("[yellow]Transcribing...", total=None)
+
+        outputs = pipe(
+            args.file_name,
+            chunk_length_s=30,
+            batch_size=args.batch_size,
+            generate_kwargs={"task": args.task, "language": args.language},
+            return_timestamps=ts,
+        )
 
     with open(args.transcript_path, "w", encoding="utf8") as fp:
         json.dump(outputs, fp, ensure_ascii=False)
