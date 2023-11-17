@@ -99,13 +99,14 @@ def main():
     else:
         ts = True
 
-    outputs = pipe(
-        args.file_name,
-        chunk_length_s=30,
-        batch_size=args.batch_size,
-        generate_kwargs={"task": args.task, "language": args.language},
-        return_timestamps=ts,
-    )
+    with Progress() as progress:
+        outputs = pipe(
+            args.file_name,
+            chunk_length_s=30,
+            batch_size=args.batch_size,
+            generate_kwargs={"task": args.task, "language": args.language},
+            return_timestamps=ts,
+        )
 
     with open(args.transcript_path, "w", encoding="utf8") as fp:
         json.dump(outputs, fp, ensure_ascii=False)
