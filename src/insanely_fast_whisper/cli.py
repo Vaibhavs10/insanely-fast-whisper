@@ -101,7 +101,7 @@ def main():
 
     with Progress(
         TextColumn("🤗 [progress.description]{task.description}"),
-        BarColumn(),
+        BarColumn(style="yellow1", pulse_style="white"),
         TimeElapsedColumn(),
     ) as progress:
         progress.add_task("[yellow]Transcribing...", total=None)
