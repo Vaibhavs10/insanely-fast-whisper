@@ -3,6 +3,7 @@ import json
 import argparse
 import torch
 from transformers import pipeline
+from rich.progress import Progress
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
