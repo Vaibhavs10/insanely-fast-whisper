@@ -11,6 +11,7 @@ dependencies = [
     "optimum",
     "accelerate",
     "setuptools>=68.2.2",
+    "rich>=13.7.0",
 ]
 requires-python = ">=3.8"
 readme = "README.md"
