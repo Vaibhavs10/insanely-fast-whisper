@@ -100,6 +100,8 @@ def main():
         ts = True
 
     with Progress() as progress:
+        progress.add_task("[blue]⚡ Transcribing...", total=None)
+
         outputs = pipe(
             args.file_name,
             chunk_length_s=30,
