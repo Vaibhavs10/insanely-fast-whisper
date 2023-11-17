@@ -45,8 +45,8 @@ parser.add_argument(
     "--language",
     required=False,
     type=str,
-    default="en",
-    help='Language of the input audio. (default: "en" (English))',
+    default="None",
+    help='Language of the input audio. (default: "None" (Whisper auto-detects the language))',
 )
 parser.add_argument(
     "--batch-size",
@@ -99,6 +99,12 @@ def main():
     else:
         ts = True
 
+    if args.language == "None":
+        lang = None
+
+    else:
+        lang = args.language
+
     with Progress(
         TextColumn("🤗 [progress.description]{task.description}"),
         BarColumn(style="yellow1", pulse_style="white"),
@@ -110,7 +116,7 @@ def main():
             args.file_name,
             chunk_length_s=30,
             batch_size=args.batch_size,
-            generate_kwargs={"task": args.task, "language": args.language},
+            generate_kwargs={"task": args.task, "language": lang},
             return_timestamps=ts,
         )
 
