@@ -70,21 +70,23 @@ The `insanely-fast-whisper` repo provides an all round support for running Whisp
                         Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v3)
   --task {transcribe,translate}
                         Task to perform: transcribe or translate to another language. (default: transcribe)
-  --language LANGUAGE   Language of the input audio. (default: "None" (Whisper auto-detects the language))
+  --language LANGUAGE   
+                        Language of the input audio. (default: "None" (Whisper auto-detects the language))
   --batch-size BATCH_SIZE
                         Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)
-  --flash FLASH         Use Flash Attention 2. Read the FAQs to see how to install FA2 correctly. (default: False)
+  --flash FLASH         
+                        Use Flash Attention 2. Read the FAQs to see how to install FA2 correctly. (default: False)
   --timestamp {chunk,word}
                         Whisper supports both chunked as well as word level timestamps. (default: chunk)
 ```
 
 ## Frequently Asked Questions
 
-### How to correctly install flash-attn to make it work with `insanely-fast-whisper`?
+**How to correctly install flash-attn to make it work with `insanely-fast-whisper`?**
 
 Make sure to install it via `pipx runpip insanely-fast-whisper install flash-attn --no-build-isolation`. Massive kudos to @li-yifei for helping with this.
 
-### How to solve an `AssertionError: Torch not compiled with CUDA enabled` error on Windows?
+**How to solve an `AssertionError: Torch not compiled with CUDA enabled` error on Windows?**
 
 The root cause of this problem is still unkown, however, you can resolve this by manually installing torch in the virtualenv like `python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`. Thanks to @pto2k for all tdebugging this.
 
