@@ -60,7 +60,7 @@ parser.add_argument(
     required=False,
     type=bool,
     default=False,
-    help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
+    help="Use Flash Attention 2. Read the FAQs to see how to install FA2 correctly. (default: False)",
 )
 parser.add_argument(
     "--timestamp",
@@ -68,7 +68,7 @@ parser.add_argument(
     type=str,
     default="chunk",
     choices=["chunk", "word"],
-    help="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24)",
+    help="Whisper supports both chunked as well as word level timestamps. (default: chunk)",
 )
 
 
