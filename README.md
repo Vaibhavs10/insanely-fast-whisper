@@ -111,7 +111,7 @@ outputs = pipe("<FILE_NAME>",
 outputs["text"]
 ```
 
-For newer (A10, A100, H100s), use [Flash Attention]():
+For newer (A10, A100, H100s), use [Flash Attention](https://github.com/Dao-AILab/flash-attention):
 
 ```python
 import torch
@@ -133,10 +133,10 @@ outputs["text"]
 
 ## Acknowledgements
 
-1. OpenAI Whisper team for open sourcing such a brilliant check point.
-2. Hugging Face Transformers team, Arthur, Patrick, Sanchit & Yoach for continuing to maintain Whisper.
-3. Hugging Face Optimum team for making the BetterTransformer API so easily accessible.
-4. Patrick Arminio for helping me tremendously to put together this CLI.
+1. [OpenAI Whisper](https://github.com/openai/whisper) team for open sourcing such a brilliant check point.
+2. Hugging Face Transformers team, specifically [Arthur](https://github.com/ArthurZucker), [Patrick](https://github.com/patrickvonplaten), [Sanchit](https://github.com/sanchit-gandhi) & [Yoach](https://github.com/ylacombe)  (alphabetical order) for continuing to maintain Whisper in Transformers.
+3. Hugging Face [Optimum](https://github.com/huggingface/optimum) team for making the BetterTransformer API so easily accessible.
+4. [Patrick Arminio](https://github.com/patrick91) for helping me tremendously to put together this CLI.
 
 ## Community showcase
 
