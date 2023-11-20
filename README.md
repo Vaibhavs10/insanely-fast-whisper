@@ -90,7 +90,8 @@ The root cause of this problem is still unkown, however, you can resolve this by
 
 ## How to use Whisper without a CLI?
 
-For older GPUs, all you need to run is:
+<details>
+<summary>For older GPUs, all you need to run is:</summary>
 
 ```python
 import torch
@@ -110,8 +111,11 @@ outputs = pipe("<FILE_NAME>",
 
 outputs["text"]
 ```
+</details>
 
-For newer (A10, A100, H100s), use [Flash Attention](https://github.com/Dao-AILab/flash-attention):
+<details>
+
+<summary>For newer (A10, A100, H100s), use [Flash Attention](https://github.com/Dao-AILab/flash-attention):</summary>
 
 ```python
 import torch
@@ -130,6 +134,7 @@ outputs = pipe("<FILE_NAME>",
 
 outputs["text"]                
 ```
+</details>
 
 ## Acknowledgements
 
