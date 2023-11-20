@@ -118,7 +118,7 @@ import torch
 from transformers import pipeline
 
 pipe = pipeline("automatic-speech-recognition",
-                "openai/whisper-large-v2",
+                "openai/whisper-large-v3",
                 torch_dtype=torch.float16,
                 model_kwargs={"use_flash_attention_2": True},
                 device="cuda:0")
@@ -131,10 +131,12 @@ outputs = pipe("<FILE_NAME>",
 outputs["text"]                
 ```
 
-## Roadmap
+## Acknowledgements
 
-- [x] Add a light CLI script
-- [ ] Deployment script with Inference API
+1. OpenAI Whisper team for open sourcing such a brilliant check point.
+2. Hugging Face Transformers team, Arthur, Patrick, Sanchit & Yoach for continuing to maintain Whisper.
+3. Hugging Face Optimum team for making the BetterTransformer API so easily accessible.
+4. Patrick Arminio for helping me tremendously to put together this CLI.
 
 ## Community showcase
 
