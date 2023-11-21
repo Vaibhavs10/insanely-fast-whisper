@@ -17,7 +17,7 @@ parser.add_argument(
     required=False,
     default="0",
     type=str,
-    help='Device ID for your GPU (just pass the device ID number). (default: "0")',
+    help='Device ID for your CUDA GPU (just pass the device ID number) or pass "mps" for M1/ M2. (default: "0")',
 )
 parser.add_argument(
     "--transcript-path",
@@ -75,7 +75,15 @@ parser.add_argument(
 def main():
     args = parser.parse_args()
 
-    if args.flash == True:
+    if args.device_id == "mps":
+        pipe = pipeline(
+            "automatic-speech-recognition",
+            model=args.model_name,
+            torch_dtype=torch.float16,
+            device="mps",
+        )
+
+    elif args.flash == True:
         pipe = pipeline(
             "automatic-speech-recognition",
             model=args.model_name,
@@ -83,6 +91,7 @@ def main():
             device=f"cuda:{args.device_id}",
             model_kwargs={"use_flash_attention_2": True},
         )
+
     else:
         pipe = pipeline(
             "automatic-speech-recognition",
