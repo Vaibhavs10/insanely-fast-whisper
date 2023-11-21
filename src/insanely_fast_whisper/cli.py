@@ -76,6 +76,7 @@ def main():
     args = parser.parse_args()
 
     if args.device_id == "mps":
+        torch.mps.empty_cache()
         pipe = pipeline(
             "automatic-speech-recognition",
             model=args.model_name,
