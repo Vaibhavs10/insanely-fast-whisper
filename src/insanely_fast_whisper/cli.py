@@ -83,7 +83,9 @@ def main():
         model_kwargs={"use_flash_attention_2": args.flash},
     )
 
-    if not (args.device_id == "mps" or args.flash is True):
+    if args.device_id == "mps":
+        torch.mps.empty_cache()
+    elif not args.flash:
         pipe.model = pipe.model.to_bettertransformer()
 
     ts = "word" if args.timestamp == "word" else True
