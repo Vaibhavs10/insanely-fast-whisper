@@ -17,7 +17,7 @@ parser.add_argument(
     required=False,
     default="0",
     type=str,
-    help='Device ID for your GPU (just pass the device ID number). (default: "0")',
+    help='Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")',
 )
 parser.add_argument(
     "--transcript-path",
@@ -75,35 +75,22 @@ parser.add_argument(
 def main():
     args = parser.parse_args()
 
-    if args.flash == True:
-        pipe = pipeline(
-            "automatic-speech-recognition",
-            model=args.model_name,
-            torch_dtype=torch.float16,
-            device=f"cuda:{args.device_id}",
-            model_kwargs={"use_flash_attention_2": True},
-        )
-    else:
-        pipe = pipeline(
-            "automatic-speech-recognition",
-            model=args.model_name,
-            torch_dtype=torch.float16,
-            device=f"cuda:{args.device_id}",
-        )
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=args.model_name,
+        torch_dtype=torch.float16,
+        device="mps" if args.device_id == "mps" else f"cuda:{args.device_id}",
+        model_kwargs={"use_flash_attention_2": args.flash},
+    )
 
+    if args.device_id == "mps":
+        torch.mps.empty_cache()
+    elif not args.flash:
         pipe.model = pipe.model.to_bettertransformer()
 
-    if args.timestamp == "word":
-        ts = "word"
+    ts = "word" if args.timestamp == "word" else True
 
-    else:
-        ts = True
-
-    if args.language == "None":
-        lang = None
-
-    else:
-        lang = args.language
+    language = None if args.language == "None" else args.language
 
     with Progress(
         TextColumn("🤗 [progress.description]{task.description}"),
@@ -116,7 +103,7 @@ def main():
             args.file_name,
             chunk_length_s=30,
             batch_size=args.batch_size,
-            generate_kwargs={"task": args.task, "language": lang},
+            generate_kwargs={"task": args.task, "language": language},
             return_timestamps=ts,
         )
 
