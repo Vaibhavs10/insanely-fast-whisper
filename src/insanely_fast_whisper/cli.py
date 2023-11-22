@@ -17,7 +17,7 @@ parser.add_argument(
     required=False,
     default="0",
     type=str,
-    help='Device ID for your CUDA GPU (just pass the device ID number) or pass "mps" for M1/ M2. (default: "0")',
+    help='Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")',
 )
 parser.add_argument(
     "--transcript-path",
