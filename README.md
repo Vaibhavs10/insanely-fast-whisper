@@ -147,4 +147,5 @@ outputs["text"]
 
 ## Community showcase
 
-@ochen1 created a brilliant MVP for a CLI here: https://github.com/ochen1/insanely-fast-whisper-cli (Try it out now!)
+1. @ochen1 created a brilliant MVP for a CLI here: https://github.com/ochen1/insanely-fast-whisper-cli (Try it out now!)
+2. @arihanv created a an app (Shush) using NextJS (Frontend) & Modal (Backend): https://github.com/arihanv/Shush (Check it outtt!)
