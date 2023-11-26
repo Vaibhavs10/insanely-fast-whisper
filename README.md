@@ -52,18 +52,19 @@ Don't want to install `insanely-fast-whisper`? Just use `pipx run`:
 pipx run insanely-fast-whisper --file-name <filename or URL>
 ```
 
-Note: The CLI is opinionated and currently only works for Nvidia GPUs. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments and defaults. 
+> [!NOTE]
+> The CLI is highly opinionate and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults. 
 
 
 ## CLI Options
 
-The `insanely-fast-whisper` repo provides an all round support for running Whisper in various settings. Note that as of today 20th Nov, `insanely-fast-whisper` only works on CUDA enabled devices.
+The `insanely-fast-whisper` repo provides an all round support for running Whisper in various settings. Note that as of today 26th Nov, `insanely-fast-whisper` works on both CUDA and mps (mac) enabled devices.
 ```
   -h, --help            show this help message and exit
   --file-name FILE_NAME
                         Path or URL to the audio file to be transcribed.
   --device-id DEVICE_ID
-                        Device ID for your GPU (just pass the device ID number). (default: "0")
+                        Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")
   --transcript-path TRANSCRIPT_PATH
                         Path to save the transcription output. (default: output.json)
   --model-name MODEL_NAME
@@ -90,51 +91,35 @@ Make sure to install it via `pipx runpip insanely-fast-whisper install flash-att
 
 The root cause of this problem is still unkown, however, you can resolve this by manually installing torch in the virtualenv like `python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`. Thanks to @pto2k for all tdebugging this.
 
+**How to avoid Out-Of-Memory (OOM) exceptions on Mac?**
+
+The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. Typically you can run with `--batch-size 4` without any issues (should use roughly 12GB GPU VRAM). Don't forget to set `--device mps`.
+
 ## How to use Whisper without a CLI?
 
 <details>
-<summary>For older GPUs, all you need to run is:</summary>
+<summary>All you need to run is the below snippet:</summary>
 
 ```python
 import torch
 from transformers import pipeline
 
-pipe = pipeline("automatic-speech-recognition",
-                "openai/whisper-large-v3",
-                torch_dtype=torch.float16,
-                device="cuda:0")
+pipe = pipeline(
+    "automatic-speech-recognition",
+    model=args.model_name,
+    torch_dtype=torch.float16,
+    device="cuda", # or mps for Mac devices
+    model_kwargs={"use_flash_attention_2": True}, # set to False for old GPUs
+)
 
-pipe.model = pipe.model.to_bettertransformer()
+pipe.model = pipe.model.to_bettertransformer() # only if `use_flash_attention_2` is set to False
 
 outputs = pipe("<FILE_NAME>",
                chunk_length_s=30,
                batch_size=24,
                return_timestamps=True)
 
-outputs["text"]
-```
-</details>
-
-<details>
-
-<summary>For newer (A10, A100, H100s), use [Flash Attention](https://github.com/Dao-AILab/flash-attention):</summary>
-
-```python
-import torch
-from transformers import pipeline
-
-pipe = pipeline("automatic-speech-recognition",
-                "openai/whisper-large-v3",
-                torch_dtype=torch.float16,
-                model_kwargs={"use_flash_attention_2": True},
-                device="cuda:0")
-
-outputs = pipe("<FILE_NAME>",
-               chunk_length_s=30,
-               batch_size=24,
-               return_timestamps=True)
-
-outputs["text"]                
+outputs
 ```
 </details>
 
