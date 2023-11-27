@@ -136,17 +136,23 @@ def main():
         diarization_pipeline.to(
             torch.device("mps" if args.device_id == "mps" else f"cuda:{args.device_id}")
         )
+        with Progress(
+            TextColumn("🤗 [progress.description]{task.description}"),
+            BarColumn(style="yellow1", pulse_style="white"),
+            TimeElapsedColumn(),
+        ) as progress:
+            progress.add_task("[yellow]Segmenting...", total=None)
 
-        inputs, diarizer_inputs = preprocess_inputs(inputs=args.file - name)
+            inputs, diarizer_inputs = preprocess_inputs(inputs=args.file_name)
 
-        segments = diarize_audio(diarizer_inputs, diarization_pipeline)
+            segments = diarize_audio(diarizer_inputs, diarization_pipeline)
 
-        segmented_transcript = post_process_segments_and_transcripts(
-            segments, outputs["chunk"], group_by_speaker=False
-        )
+            segmented_transcript = post_process_segments_and_transcripts(
+                segments, outputs["chunks"], group_by_speaker=False
+            )
 
         with open(args.transcript_path, "w", encoding="utf8") as fp:
-            json.dump(outputs, fp, ensure_ascii=False)
+            json.dump(segmented_transcript, fp, ensure_ascii=False)
 
         print(
             f"Voila! Your file has been transcribed & speaker segmented go check it out over here: {args.transcript_path}"
