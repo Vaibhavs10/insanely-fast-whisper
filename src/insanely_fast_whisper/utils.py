@@ -7,6 +7,7 @@ import numpy as np
 from torchaudio import functional as F
 from transformers.pipelines.audio_utils import ffmpeg_read
 
+
 def preprocess_inputs(inputs):
     if isinstance(inputs, str):
         if inputs.startswith("http://") or inputs.startswith("https://"):
@@ -37,12 +38,16 @@ def preprocess_inputs(inputs):
         in_sampling_rate = inputs.pop("sampling_rate")
         inputs = _inputs
         if in_sampling_rate != 16000:
-            inputs = F.resample(torch.from_numpy(inputs), in_sampling_rate, 16000).numpy()
+            inputs = F.resample(
+                torch.from_numpy(inputs), in_sampling_rate, 16000
+            ).numpy()
 
     if not isinstance(inputs, np.ndarray):
         raise ValueError(f"We expect a numpy ndarray as input, got `{type(inputs)}`")
     if len(inputs.shape) != 1:
-        raise ValueError("We expect a single channel audio input for ASRDiarizePipeline")
+        raise ValueError(
+            "We expect a single channel audio input for ASRDiarizePipeline"
+        )
 
     # diarization model expects float32 torch tensor of shape `(channels, seq_len)`
     diarizer_inputs = torch.from_numpy(inputs).float()
@@ -50,17 +55,21 @@ def preprocess_inputs(inputs):
 
     return inputs, diarizer_inputs
 
-def diarize_audio(diarizer_inputs, diarization_pipeline):
 
+def diarize_audio(diarizer_inputs, diarization_pipeline):
     diarization = diarization_pipeline(
-            {"waveform": diarizer_inputs, "sample_rate": 16000},
-        )
+        {"waveform": diarizer_inputs, "sample_rate": 16000},
+    )
 
     segments = []
     for segment, track, label in diarization.itertracks(yield_label=True):
-        segments.append({'segment': {'start': segment.start, 'end': segment.end},
-                            'track': track,
-                            'label': label})
+        segments.append(
+            {
+                "segment": {"start": segment.start, "end": segment.end},
+                "track": track,
+                "label": label,
+            }
+        )
 
     # diarizer output may contain consecutive segments from the same speaker (e.g. {(0 -> 1, speaker_1), (1 -> 1.5, speaker_1), ...})
     # we combine these segments to give overall timestamps for each speaker's turn (e.g. {(0 -> 1.5, speaker_1), ...})
@@ -75,7 +84,10 @@ def diarize_audio(diarizer_inputs, diarization_pipeline):
             # add the start/end times for the super-segment to the new list
             new_segments.append(
                 {
-                    "segment": {"start": prev_segment["segment"]["start"], "end": cur_segment["segment"]["start"]},
+                    "segment": {
+                        "start": prev_segment["segment"]["start"],
+                        "end": cur_segment["segment"]["start"],
+                    },
                     "speaker": prev_segment["label"],
                 }
             )
@@ -84,12 +96,16 @@ def diarize_audio(diarizer_inputs, diarization_pipeline):
     # add the last segment(s) if there was no speaker change
     new_segments.append(
         {
-            "segment": {"start": prev_segment["segment"]["start"], "end": cur_segment["segment"]["end"]},
+            "segment": {
+                "start": prev_segment["segment"]["start"],
+                "end": cur_segment["segment"]["end"],
+            },
             "speaker": prev_segment["label"],
         }
     )
 
     return new_segments
+
 
 def post_process_segments_and_transcripts(new_segments, transcript, group_by_speaker):
     # get the end timestamps for each chunk from the ASR output
@@ -107,8 +123,13 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
             segmented_preds.append(
                 {
                     "speaker": segment["speaker"],
-                    "text": "".join([chunk["text"] for chunk in transcript[: upto_idx + 1]]),
-                    "timestamp": (transcript[0]["timestamp"][0], transcript[upto_idx]["timestamp"][1]),
+                    "text": "".join(
+                        [chunk["text"] for chunk in transcript[: upto_idx + 1]]
+                    ),
+                    "timestamp": (
+                        transcript[0]["timestamp"][0],
+                        transcript[upto_idx]["timestamp"][1],
+                    ),
                 }
             )
         else:
@@ -118,5 +139,5 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
         # crop the transcripts and timestamp lists according to the latest timestamp (for faster argmin)
         transcript = transcript[upto_idx + 1 :]
         end_timestamps = end_timestamps[upto_idx + 1 :]
-    
+
     return segmented_preds

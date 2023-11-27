@@ -3,7 +3,15 @@ import json
 import argparse
 import torch
 from transformers import pipeline
+from pyannote.audio import Pipeline
+
+from utils import (
+    preprocess_inputs,
+    diarize_audio,
+    post_process_segments_and_transcripts,
+)
 from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
+
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
@@ -70,6 +78,13 @@ parser.add_argument(
     choices=["chunk", "word"],
     help="Whisper supports both chunked as well as word level timestamps. (default: chunk)",
 )
+parser.add_argument(
+    "--hf_token",
+    required=False,
+    default="no_token",
+    type=str,
+    help="Provide a hf.co/settings/token for Pyannote.audio to diarise the audio clips",
+)
 
 
 def main():
@@ -111,5 +126,28 @@ def main():
         json.dump(outputs, fp, ensure_ascii=False)
 
     print(
-        f"Voila! Your file has been transcribed go check it out over here! {args.transcript_path}"
+        f"Voila! Your file has been transcribed go check it out over here: {args.transcript_path}"
     )
+
+    if args.hf_token != "no_token":
+        diarization_pipeline = Pipeline.from_pretrained(
+            "pyannote/speaker-diarization-3.1", use_auth_token=args.hf_token
+        )
+        diarization_pipeline.to(
+            torch.device("mps" if args.device_id == "mps" else f"cuda:{args.device_id}")
+        )
+
+        inputs, diarizer_inputs = preprocess_inputs(inputs=args.file - name)
+
+        segments = diarize_audio(diarizer_inputs, diarization_pipeline)
+
+        segmented_transcript = post_process_segments_and_transcripts(
+            segments, outputs["chunk"], group_by_speaker=False
+        )
+
+        with open(args.transcript_path, "w", encoding="utf8") as fp:
+            json.dump(outputs, fp, ensure_ascii=False)
+
+        print(
+            f"Voila! Your file has been transcribed & speaker segmented go check it out over here: {args.transcript_path}"
+        )
