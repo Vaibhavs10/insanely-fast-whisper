@@ -18,6 +18,8 @@ Not convinced? Here are some benchmarks we ran on a Nvidia A100 - 80GB 👇
 
 P.S. We also ran the benchmarks on a [Google Colab T4 GPU](/notebooks/) instance too!
 
+P.P.S. This project originally started as a way to showcase benchmarks for Transformers, but has since evolved into a lightweight CLI for people to use. This is purely community driven. We add whatever community seems to have a strong demand for! 
+
 ## 🆕 Blazingly fast transcriptions via your terminal! ⚡️
 
 We've added a CLI to enable fast transcriptions. Here's how you can use it:
@@ -79,6 +81,8 @@ The `insanely-fast-whisper` repo provides an all round support for running Whisp
                         Use Flash Attention 2. Read the FAQs to see how to install FA2 correctly. (default: False)
   --timestamp {chunk,word}
                         Whisper supports both chunked as well as word level timestamps. (default: chunk)
+  --hf_token
+                        Provide a hf.co/settings/token for Pyannote.audio to diarise the audio clips
 ```
 
 ## Frequently Asked Questions
