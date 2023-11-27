@@ -122,13 +122,6 @@ def main():
             return_timestamps=ts,
         )
 
-    with open(args.transcript_path, "w", encoding="utf8") as fp:
-        json.dump(outputs, fp, ensure_ascii=False)
-
-    print(
-        f"Voila! Your file has been transcribed go check it out over here: {args.transcript_path}"
-    )
-
     if args.hf_token != "no_token":
         diarization_pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=args.hf_token
@@ -151,9 +144,18 @@ def main():
                 segments, outputs["chunks"], group_by_speaker=False
             )
 
+        segmented_transcript.append(outputs)
+
         with open(args.transcript_path, "w", encoding="utf8") as fp:
             json.dump(segmented_transcript, fp, ensure_ascii=False)
 
         print(
-            f"Voila! Your file has been transcribed & speaker segmented go check it out over here: {args.transcript_path}"
+            f"Voila!✨ Your file has been transcribed & speaker segmented go check it out over here 👉 {args.transcript_path}"
+        )
+    else:
+        with open(args.transcript_path, "w", encoding="utf8") as fp:
+            json.dump(outputs, fp, ensure_ascii=False)
+
+        print(
+            f"Voila!✨ Your file has been transcribed go check it out over here 👉 {args.transcript_path}"
         )
