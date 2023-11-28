@@ -15,6 +15,8 @@ build:
     - "ffmpeg-python==0.2.0"
     - "openai-whisper==20231106"
     - "optimum==1.14.0"
+    - "pyannote-audio==3.1.0"
+    - "rich==13.7.0"
   run: 
     - pip install packaging
     - pip install flash-attn --no-build-isolation
