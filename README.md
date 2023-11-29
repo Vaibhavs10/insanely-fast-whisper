@@ -108,6 +108,10 @@ The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. T
 <details>
 <summary>All you need to run is the below snippet:</summary>
 
+```
+pip install transformers optimum accelerate
+```
+
 ```python
 import torch
 from transformers import pipeline
@@ -142,3 +146,4 @@ outputs
 
 1. @ochen1 created a brilliant MVP for a CLI here: https://github.com/ochen1/insanely-fast-whisper-cli (Try it out now!)
 2. @arihanv created a an app (Shush) using NextJS (Frontend) & Modal (Backend): https://github.com/arihanv/Shush (Check it outtt!)
+3. @kadirnar created a python package on top of the transformers with optimisations: https://github.com/kadirnar/whisper-plus (Go go go!!!)
