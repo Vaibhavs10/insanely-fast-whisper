@@ -222,7 +222,13 @@ parser.add_argument(
     type=str,
     help="Provide a hf.co/settings/token for Pyannote.audio to diarise the audio clips",
 )
-
+parser.add_argument(
+    "--diarization_model",
+    required=False,
+    default="pyannote/speaker-diarization-3.1",
+    type=str,
+    help="Name of the pretrained model/ checkpoint to perform diarization. (default: pyannote/speaker-diarization)",
+)
 
 def main():
     args = parser.parse_args()
@@ -261,7 +267,8 @@ def main():
 
     if args.hf_token != "no_token":
         diarization_pipeline = Pipeline.from_pretrained(
-            "pyannote/speaker-diarization-3.1", use_auth_token=args.hf_token
+            checkpoint_path=args.diarization_model,
+            use_auth_token=args.hf_token,
         )
         diarization_pipeline.to(
             torch.device("mps" if args.device_id == "mps" else f"cuda:{args.device_id}")
