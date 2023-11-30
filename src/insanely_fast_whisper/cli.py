@@ -225,7 +225,7 @@ parser.add_argument(
 parser.add_argument(
     "--diarization_model",
     required=False,
-    default="pyannote/speaker-diarization",
+    default="pyannote/speaker-diarization-3.1",
     type=str,
     help="Name of the pretrained model/ checkpoint to perform diarization. (default: pyannote/speaker-diarization)",
 )
