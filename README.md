@@ -61,7 +61,7 @@ pipx run insanely-fast-whisper --file-name <filename or URL>
 ```
 
 > [!NOTE]
-> The CLI is highly opinionate and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults. 
+> The CLI is highly opinionated and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults. 
 
 
 ## CLI Options
@@ -99,7 +99,7 @@ Make sure to install it via `pipx runpip insanely-fast-whisper install flash-att
 
 **How to solve an `AssertionError: Torch not compiled with CUDA enabled` error on Windows?**
 
-The root cause of this problem is still unkown, however, you can resolve this by manually installing torch in the virtualenv like `python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`. Thanks to @pto2k for all tdebugging this.
+The root cause of this problem is still unknown, however, you can resolve this by manually installing torch in the virtualenv like `python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`. Thanks to @pto2k for all tdebugging this.
 
 **How to avoid Out-Of-Memory (OOM) exceptions on Mac?**
 
@@ -147,5 +147,5 @@ outputs
 ## Community showcase
 
 1. @ochen1 created a brilliant MVP for a CLI here: https://github.com/ochen1/insanely-fast-whisper-cli (Try it out now!)
-2. @arihanv created a an app (Shush) using NextJS (Frontend) & Modal (Backend): https://github.com/arihanv/Shush (Check it outtt!)
+2. @arihanv created an app (Shush) using NextJS (Frontend) & Modal (Backend): https://github.com/arihanv/Shush (Check it outtt!)
 3. @kadirnar created a python package on top of the transformers with optimisations: https://github.com/kadirnar/whisper-plus (Go go go!!!)
