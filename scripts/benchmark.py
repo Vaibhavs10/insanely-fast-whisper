@@ -13,8 +13,14 @@ file_name = (
 )
 
 for model in models:
+    print(f"Running Model: {model}")
+
     for fa2 in test_flash_attention:
+        print(f"Flash Attention: {fa2}")
+
         for batch_size in batch_sizes:
+            print(f"Batch Size: {batch_size}")
+
             torch.cuda.empty_cache()
 
             pipe = pipeline(
@@ -35,9 +41,9 @@ for model in models:
         )
         end = time.time()
         total_time = end - start
-        print(total_time)
+        print(f"Total time: {total_time}")
 
         max_mem = torch.cuda.max_memory_reserved()
-        print(max_mem)
+        print(f"Total memory: {max_mem}")
 
         torch.cuda.reset_peak_memory_stats(device=device)
