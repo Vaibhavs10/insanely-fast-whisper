@@ -1,8 +1,11 @@
 import time
 import json
+import logging
 
 import torch
 from transformers import pipeline
+
+logging.set_verbosity_error()
 
 models = ["openai/whisper-large-v3", "distil-whisper/large-v2"]
 test_flash_attention = [True, False]
