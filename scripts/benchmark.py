@@ -30,20 +30,22 @@ for model in models:
                 device=device,
                 model_kwargs={"use_flash_attention_2": fa2},
             )
-        if fa2 == False:
-            pipe.model = pipe.model.to_bettertransformer()
-        start = time.time()
-        outputs = pipe(
-            file_name,
-            chunk_length_s=30,
-            batch_size=batch_size,
-            return_timestamps=True,
-        )
-        end = time.time()
-        total_time = end - start
-        print(f"Total time: {total_time}")
 
-        max_mem = torch.cuda.max_memory_reserved()
-        print(f"Total memory: {max_mem}")
+            if fa2 == False:
+                pipe.model = pipe.model.to_bettertransformer()
 
-        torch.cuda.reset_peak_memory_stats(device=device)
+            start = time.time()
+            outputs = pipe(
+                file_name,
+                chunk_length_s=30,
+                batch_size=batch_size,
+                return_timestamps=True,
+            )
+            end = time.time()
+            total_time = end - start
+            print(f"Total time: {total_time}")
+
+            max_mem = torch.cuda.max_memory_reserved()
+            print(f"Total memory: {max_mem}")
+
+            torch.cuda.reset_peak_memory_stats(device=device)
