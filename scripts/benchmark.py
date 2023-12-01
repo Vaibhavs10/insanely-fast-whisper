@@ -15,6 +15,8 @@ file_name = (
 for model in models:
     for fa2 in test_flash_attention:
         for batch_size in batch_sizes:
+            torch.cuda.empty_cache()
+
             pipe = pipeline(
                 "automatic-speech-recognition",
                 model=model,
@@ -34,3 +36,8 @@ for model in models:
         end = time.time()
         total_time = end - start
         print(total_time)
+
+        max_mem = torch.cuda.max_memory_reserved()
+        print(max_mem)
+
+        torch.cuda.reset_peak_memory_stats(device=device)
