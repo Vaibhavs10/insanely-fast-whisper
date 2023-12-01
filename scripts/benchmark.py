@@ -12,6 +12,8 @@ file_name = (
     "https://huggingface.co/datasets/reach-vb/random-audios/resolve/main/ted_60.wav"
 )
 
+results_dict = {}
+
 for model in models:
     print(f"Running Model: {model}")
 
@@ -46,6 +48,15 @@ for model in models:
             print(f"Total time: {total_time}")
 
             max_mem = torch.cuda.max_memory_reserved()
-            print(f"Total memory: {max_mem}")
+            max_mem_mb = max_mem / (1024 * 1024)
+            print(f"Total memory: {max_mem_mb}")
+
+            results_dict = {
+                "Model": model,
+                "Flash": fa2,
+                "Batch": batch_size,
+                "Time": total_time,
+                "Memory": max_mem_mb,
+            }
 
             torch.cuda.reset_peak_memory_stats(device=device)
