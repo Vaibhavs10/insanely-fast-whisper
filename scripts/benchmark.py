@@ -1,4 +1,5 @@
 import time
+import json
 
 import torch
 from transformers import pipeline
@@ -12,7 +13,7 @@ file_name = (
     "https://huggingface.co/datasets/reach-vb/random-audios/resolve/main/ted_60.wav"
 )
 
-results_dict = {}
+results = []
 
 for model in models:
     print(f"Running Model: {model}")
@@ -51,7 +52,7 @@ for model in models:
             max_mem_mb = max_mem / (1024 * 1024)
             print(f"Total memory: {max_mem_mb}")
 
-            results_dict = {
+            temp = {
                 "Model": model,
                 "Flash": fa2,
                 "Batch": batch_size,
@@ -59,4 +60,9 @@ for model in models:
                 "Memory": max_mem_mb,
             }
 
+            results.append(temp)
+
             torch.cuda.reset_peak_memory_stats(device=device)
+
+with open("benchmark.json", "w") as outfile:
+    json.dump(results, outfile)
