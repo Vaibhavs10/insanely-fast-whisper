@@ -1,17 +1,22 @@
 import json
 import argparse
-import torch
-from transformers import pipeline
-from pyannote.audio import Pipeline
-from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
+import logging
+
 import torch
 
+from transformers import pipeline
+
+from pyannote.audio import Pipeline
+
+from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
 
 from .utils.diarize import (
     diarize_audio,
     preprocess_inputs,
     post_process_segments_and_transcripts,
 )
+
+logging.set_verbosity_error()
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
