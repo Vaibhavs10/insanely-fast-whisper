@@ -41,6 +41,7 @@ Run inference from any path on your computer:
 ```bash
 insanely-fast-whisper --file-name <filename or URL>
 ```
+*Note: if you are running on macOS, you also need to add `--device-id mps` flag.*
 
 🔥 You can run [Whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) w/ [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) from this CLI too:
 
