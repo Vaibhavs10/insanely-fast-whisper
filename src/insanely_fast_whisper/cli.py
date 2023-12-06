@@ -1,11 +1,8 @@
 import json
 import argparse
 import torch
-from transformers import pipeline
 from pyannote.audio import Pipeline
 from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
-import torch
-
 
 from .utils.diarize import (
     diarize_audio,
@@ -94,8 +91,23 @@ parser.add_argument(
 )
 
 
+def get_pipeline(device_id):
+    try:
+        if device_id != "cuda":
+            from transformers import pipeline
+        else:
+            from optimum.nvidia.pipelines import pipeline
+        return pipeline
+    except ImportError as e:
+        raise ImportError(f"Failed to import the required pipeline module: {e}")
+    except Exception as e:
+        raise Exception(f"An unexpected error occurred: {e}")
+
+
 def main():
     args = parser.parse_args()
+
+    pipeline = get_pipeline(args.device_id)
 
     pipe = pipeline(
         "automatic-speech-recognition",
@@ -116,9 +128,9 @@ def main():
     language = None if args.language == "None" else args.language
 
     with Progress(
-        TextColumn("🤗 [progress.description]{task.description}"),
-        BarColumn(style="yellow1", pulse_style="white"),
-        TimeElapsedColumn(),
+            TextColumn("🤗 [progress.description]{task.description}"),
+            BarColumn(style="yellow1", pulse_style="white"),
+            TimeElapsedColumn(),
     ) as progress:
         progress.add_task("[yellow]Transcribing...", total=None)
 
@@ -139,9 +151,9 @@ def main():
             torch.device("mps" if args.device_id == "mps" else f"cuda:{args.device_id}")
         )
         with Progress(
-            TextColumn("🤗 [progress.description]{task.description}"),
-            BarColumn(style="yellow1", pulse_style="white"),
-            TimeElapsedColumn(),
+                TextColumn("🤗 [progress.description]{task.description}"),
+                BarColumn(style="yellow1", pulse_style="white"),
+                TimeElapsedColumn(),
         ) as progress:
             progress.add_task("[yellow]Segmenting...", total=None)
 
