@@ -1,17 +1,11 @@
 import json
 import argparse
-import torch
 from transformers import pipeline
-from pyannote.audio import Pipeline
 from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
 import torch
 
-
-from .utils.diarize import (
-    diarize_audio,
-    preprocess_inputs,
-    post_process_segments_and_transcripts,
-)
+from .utils.diarization_pipeline import diarize
+from .utils.result import build_result
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
@@ -116,9 +110,9 @@ def main():
     language = None if args.language == "None" else args.language
 
     with Progress(
-        TextColumn("🤗 [progress.description]{task.description}"),
-        BarColumn(style="yellow1", pulse_style="white"),
-        TimeElapsedColumn(),
+            TextColumn("🤗 [progress.description]{task.description}"),
+            BarColumn(style="yellow1", pulse_style="white"),
+            TimeElapsedColumn(),
     ) as progress:
         progress.add_task("[yellow]Transcribing...", total=None)
 
@@ -131,39 +125,18 @@ def main():
         )
 
     if args.hf_token != "no_token":
-        diarization_pipeline = Pipeline.from_pretrained(
-            checkpoint_path=args.diarization_model,
-            use_auth_token=args.hf_token,
-        )
-        diarization_pipeline.to(
-            torch.device("mps" if args.device_id == "mps" else f"cuda:{args.device_id}")
-        )
-        with Progress(
-            TextColumn("🤗 [progress.description]{task.description}"),
-            BarColumn(style="yellow1", pulse_style="white"),
-            TimeElapsedColumn(),
-        ) as progress:
-            progress.add_task("[yellow]Segmenting...", total=None)
-
-            inputs, diarizer_inputs = preprocess_inputs(inputs=args.file_name)
-
-            segments = diarize_audio(diarizer_inputs, diarization_pipeline)
-
-            segmented_transcript = post_process_segments_and_transcripts(
-                segments, outputs["chunks"], group_by_speaker=False
-            )
-
-        segmented_transcript.append(outputs)
-
+        speakers_transcript = diarize(args, outputs)
         with open(args.transcript_path, "w", encoding="utf8") as fp:
-            json.dump(segmented_transcript, fp, ensure_ascii=False)
+            result = build_result(speakers_transcript, outputs)
+            json.dump(result, fp, ensure_ascii=False)
 
         print(
             f"Voila!✨ Your file has been transcribed & speaker segmented go check it out over here 👉 {args.transcript_path}"
         )
     else:
         with open(args.transcript_path, "w", encoding="utf8") as fp:
-            json.dump(outputs, fp, ensure_ascii=False)
+            result = build_result([], outputs)
+            json.dump(result, fp, ensure_ascii=False)
 
         print(
             f"Voila!✨ Your file has been transcribed go check it out over here 👉 {args.transcript_path}"
