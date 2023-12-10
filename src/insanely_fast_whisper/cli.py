@@ -95,7 +95,6 @@ def main():
         "automatic-speech-recognition",
         model=args.model_name,
         torch_dtype=torch.float16,
-        low_cpu_mem_usage=True,
         device="mps" if args.device_id == "mps" else f"cuda:{args.device_id}",
         model_kwargs={"use_flash_attention_2": args.flash},
     )
