@@ -109,10 +109,15 @@ def main():
 
     language = None if args.language == "None" else args.language
 
+    generate_kwargs = {"task": args.task, "language": language}
+
+    if args.model_name.split(".")[-1] == "en":
+        generate_kwargs.pop("task")
+
     with Progress(
-            TextColumn("🤗 [progress.description]{task.description}"),
-            BarColumn(style="yellow1", pulse_style="white"),
-            TimeElapsedColumn(),
+        TextColumn("🤗 [progress.description]{task.description}"),
+        BarColumn(style="yellow1", pulse_style="white"),
+        TimeElapsedColumn(),
     ) as progress:
         progress.add_task("[yellow]Transcribing...", total=None)
 
@@ -120,7 +125,7 @@ def main():
             args.file_name,
             chunk_length_s=30,
             batch_size=args.batch_size,
-            generate_kwargs={"task": args.task, "language": language},
+            generate_kwargs=generate_kwargs,
             return_timestamps=ts,
         )
 
