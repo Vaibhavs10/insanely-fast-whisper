@@ -115,9 +115,9 @@ def main():
         generate_kwargs.pop("task")
 
     with Progress(
-            TextColumn("🤗 [progress.description]{task.description}"),
-            BarColumn(style="yellow1", pulse_style="white"),
-            TimeElapsedColumn(),
+        TextColumn("🤗 [progress.description]{task.description}"),
+        BarColumn(style="yellow1", pulse_style="white"),
+        TimeElapsedColumn(),
     ) as progress:
         progress.add_task("[yellow]Transcribing...", total=None)
 
