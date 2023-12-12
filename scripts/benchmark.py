@@ -27,7 +27,6 @@ for model in models:
             print(f"Batch Size: {batch_size}")
 
             torch.cuda.empty_cache()
-            torch.cuda.reset_peak_memory_stats(device=device)
 
             pipe = pipeline(
                 "automatic-speech-recognition",
@@ -65,7 +64,7 @@ for model in models:
 
             results.append(temp)
 
-            torch.cuda.reset_peak_memory_stats(device=device)
+            torch.cuda.reset_peak_memory_stats(device=0)
             torch.cuda.empty_cache()
 
 with open("benchmark.json", "w") as outfile:
