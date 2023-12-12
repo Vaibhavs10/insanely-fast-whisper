@@ -8,7 +8,7 @@ from transformers import pipeline
 
 transformers.utils.logging.set_verbosity_error()
 
-models = ["openai/whisper-large-v3"]
+models = ["openai/whisper-large-v3", "distil-whisper/distil-large-v2"]
 test_flash_attention = [True, False]
 device = "cuda:0"
 batch_sizes = [1, 24]
@@ -43,7 +43,7 @@ for model in models:
             start = time.time()
             outputs = pipe(
                 file_name,
-                chunk_length_s=30,
+                chunk_length_s=30 if model_name.split("/")[0] == "openai" else 15,
                 batch_size=batch_size,
                 generate_kwargs={"language": "en", "task": "transcribe"},
             )
