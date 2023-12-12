@@ -8,14 +8,12 @@ from transformers import pipeline
 
 transformers.utils.logging.set_verbosity_error()
 
-models = ["openai/whisper-large-v3", "distil-whisper/large-v2"]
+models = ["openai/whisper-large-v3"]
 test_flash_attention = [True, False]
 device = "cuda:0"
-batch_sizes = [1, 8, 16, 24]
+batch_sizes = [1, 24]
 
-file_name = (
-    "https://huggingface.co/datasets/reach-vb/random-audios/resolve/main/ted_60.wav"
-)
+file_name = "https://huggingface.co/datasets/reach-vb/random-audios/resolve/main/sam_altman_lex_podcast_367.flac"
 
 results = []
 
@@ -46,7 +44,6 @@ for model in models:
                 file_name,
                 chunk_length_s=30,
                 batch_size=batch_size,
-                return_timestamps=True,
                 generate_kwargs={"language": "en", "task": "transcribe"},
             )
             end = time.time()
