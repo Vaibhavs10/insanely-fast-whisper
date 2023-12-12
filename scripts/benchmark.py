@@ -47,6 +47,7 @@ for model in models:
                 chunk_length_s=30,
                 batch_size=batch_size,
                 return_timestamps=True,
+                generate_kwargs={"language": "en", "task": "transcribe"},
             )
             end = time.time()
             total_time = end - start
