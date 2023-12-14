@@ -144,4 +144,7 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
         transcript = transcript[upto_idx + 1:]
         end_timestamps = end_timestamps[upto_idx + 1:]
 
+        if len(end_timestamps) == 0:
+            break 
+
     return segmented_preds
