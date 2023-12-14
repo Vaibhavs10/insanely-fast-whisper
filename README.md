@@ -112,27 +112,32 @@ The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. T
 <summary>All you need to run is the below snippet:</summary>
 
 ```
-pip install transformers optimum accelerate
+pip install --upgrade transformers optimum accelerate
 ```
 
 ```python
 import torch
 from transformers import pipeline
+from transformers.utils import is_flash_attn_2_available
 
 pipe = pipeline(
     "automatic-speech-recognition",
-    model=args.model_name,
+    model="openai/whisper-large-v3", # select checkpoint from https://huggingface.co/openai/whisper-large-v3#model-details
     torch_dtype=torch.float16,
-    device="cuda", # or mps for Mac devices
-    model_kwargs={"use_flash_attention_2": True}, # set to False for old GPUs
+    device="cuda:0", # or mps for Mac devices
+    model_kwargs={"use_flash_attention_2": is_flash_attn_2_available()},
 )
 
-pipe.model = pipe.model.to_bettertransformer() # only if `use_flash_attention_2` is set to False
+if not is_flash_attn_2_available():
+    # enable flash attention through pytorch sdpa
+    pipe.model = pipe.model.to_bettertransformer()
 
-outputs = pipe("<FILE_NAME>",
-               chunk_length_s=30,
-               batch_size=24,
-               return_timestamps=True)
+outputs = pipe(
+    "<FILE_NAME>",
+    chunk_length_s=30,
+    batch_size=24,
+    return_timestamps=True,
+)
 
 outputs
 ```
