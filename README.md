@@ -35,6 +35,14 @@ pipx install insanely-fast-whisper
 ```
 *Note: Due to a dependency on [`onnxruntime`, Python 3.12 is currently not supported](https://github.com/microsoft/onnxruntime/issues/17842). You can force a Python version (e.g. 3.11) by adding `--python python3.11` to the command.*
 
+⚠️ If you have python 3.11.XX installed, `pipx` may parse the version incorrectly and install a very old version of `insanely-fast-whisper` without telling you (version `0.0.8`, which won't work anymore with the current `BetterTransformers`). In that case, you can install the latest version by passing `--ignore-requires-python` to `pip`:
+
+```bash
+pipx install insanely-fast-whisper --force --pip-args="--ignore-requires-python"
+```
+
+If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`.
+
 
 Run inference from any path on your computer:
 
