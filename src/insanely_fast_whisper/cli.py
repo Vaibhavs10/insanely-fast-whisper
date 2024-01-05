@@ -19,7 +19,7 @@ parser.add_argument(
     required=False,
     default="0",
     type=str,
-    help='Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")',
+    help='Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon or "cpu". (default: "0")',
 )
 parser.add_argument(
     "--transcript-path",
@@ -91,11 +91,13 @@ parser.add_argument(
 def main():
     args = parser.parse_args()
 
+    dtype = torch.float32 if args.device_id == "cpu" else torch.float16
+
     pipe = pipeline(
         "automatic-speech-recognition",
         model=args.model_name,
-        torch_dtype=torch.float16,
-        device="mps" if args.device_id == "mps" else f"cuda:{args.device_id}",
+        torch_dtype=dtype,
+        device=f"cuda:{args.device_id}" if args.device_id.isnumeric() else args.device_id,
         model_kwargs={"attn_implementation": "flash_attention_2"} if args.flash else {"attn_implementation": "sdpa"},
     )
 
