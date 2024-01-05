@@ -24,6 +24,9 @@ P.S. We also ran the benchmarks on a [Google Colab T4 GPU](/notebooks/) instance
 
 P.P.S. This project originally started as a way to showcase benchmarks for Transformers, but has since evolved into a lightweight CLI for people to use. This is purely community driven. We add whatever community seems to have a strong demand for! 
 
+Try the Relicate demo here: [![Replicate](https://replicate.com/cjwbw/insanely-fast-whisper/badge)](https://replicate.com/cjwbw/insanely-fast-whisper) 
+
+
 ## 🆕 Blazingly fast transcriptions via your terminal! ⚡️
 
 We've added a CLI to enable fast transcriptions. Here's how you can use it:
