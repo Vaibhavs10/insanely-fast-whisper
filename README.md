@@ -133,12 +133,8 @@ pipe = pipeline(
     model="openai/whisper-large-v3", # select checkpoint from https://huggingface.co/openai/whisper-large-v3#model-details
     torch_dtype=torch.float16,
     device="cuda:0", # or mps for Mac devices
-    model_kwargs={"use_flash_attention_2": is_flash_attn_2_available()},
+    model_kwargs={"attn_implementation": "flash_attention_2"} if is_flash_attn_2_available() else {"attn_implementation": "sdpa"},
 )
-
-if not is_flash_attn_2_available():
-    # enable flash attention through pytorch sdpa
-    pipe.model = pipe.model.to_bettertransformer()
 
 outputs = pipe(
     "<FILE_NAME>",
