@@ -14,7 +14,7 @@ dependencies = [
     "setuptools>=68.2.2",
     "rich>=13.7.0",
 ]
-requires-python = ">=3.8,<=3.11"
+requires-python = ">=3.8,<3.13"
 readme = "README.md"
 license = { text = "MIT" }
 
