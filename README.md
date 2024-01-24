@@ -112,7 +112,7 @@ The root cause of this problem is still unknown, however, you can resolve this b
 
 **How to avoid Out-Of-Memory (OOM) exceptions on Mac?**
 
-The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. Typically you can run with `--batch-size 4` without any issues (should use roughly 12GB GPU VRAM). Don't forget to set `--device mps`.
+The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. Typically you can run with `--batch-size 4` without any issues (should use roughly 12GB GPU VRAM). Don't forget to set `--device-id mps`.
 
 ## How to use Whisper without a CLI?
 
