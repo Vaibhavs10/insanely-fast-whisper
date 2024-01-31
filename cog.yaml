@@ -11,7 +11,7 @@ build:
     - "torch==2.0.1"
     - "tqdm==4.66.1"
     - "more-itertools==10.1.0"
-    - "transformers==4.35.0"
+    - "transformers==4.37.2"
     - "ffmpeg-python==0.2.0"
     - "openai-whisper==20231106"
     - "optimum==1.14.0"

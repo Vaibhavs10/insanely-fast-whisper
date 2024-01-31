@@ -9,6 +9,7 @@ from transformers import (
 )
 from pyannote.audio import Pipeline
 from transformers.pipelines.audio_utils import ffmpeg_read
+from transformers.models.whisper.tokenization_whisper import LANGUAGES
 from cog import BasePredictor, Input, Path
 
 
@@ -52,8 +53,9 @@ class Predictor(BasePredictor):
             description="Task to perform: transcribe or translate to another language. (default: transcribe).",
         ),
         language: str = Input(
-            default=None,
-            description="Optional. Language spoken in the audio, specify None to perform language detection.",
+            default="None",
+            choices=["None"] + sorted(list(LANGUAGES.values())),
+            description="Language spoken in the audio, specify 'None' to perform language detection.",
         ),
         batch_size: int = Input(
             default=24,
@@ -84,7 +86,10 @@ class Predictor(BasePredictor):
             str(audio),
             chunk_length_s=30,
             batch_size=batch_size,
-            generate_kwargs={"task": task, "language": language},
+            generate_kwargs={
+                "task": task,
+                "language": None if language == "None" else language,
+            },
             return_timestamps="word" if timestamp == "word" else True,
         )
 
