@@ -16,7 +16,6 @@ class Predictor(BasePredictor):
     def setup(self):
         """Loads whisper models into memory to make running multiple predictions efficient"""
         self.model_cache = "model_cache"
-        local_files_only = True  # set to true after the model is cached to model_cache
         model_id = "openai/whisper-large-v3"
         torch_dtype = torch.float16
         self.device = "cuda:0"
@@ -24,14 +23,13 @@ class Predictor(BasePredictor):
             model_id,
             torch_dtype=torch_dtype,
             cache_dir=self.model_cache,
-            local_files_only=local_files_only,
         ).to(self.device)
 
         tokenizer = WhisperTokenizerFast.from_pretrained(
-            model_id, cache_dir=self.model_cache, local_files_only=local_files_only
+            model_id, cache_dir=self.model_cache
         )
         feature_extractor = WhisperFeatureExtractor.from_pretrained(
-            model_id, cache_dir=self.model_cache, local_files_only=local_files_only
+            model_id, cache_dir=self.model_cache
         )
 
         self.pipe = pipeline(
@@ -90,7 +88,7 @@ class Predictor(BasePredictor):
             return_timestamps="word" if timestamp == "word" else True,
         )
 
-        if diarize_audio:
+        if diarise_audio:
             if self.diarization_pipeline is None:
                 try:
                     self.diarization_pipeline = Pipeline.from_pretrained(
