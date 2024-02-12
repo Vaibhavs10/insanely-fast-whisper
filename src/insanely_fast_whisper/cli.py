@@ -73,7 +73,7 @@ parser.add_argument(
     help="Whisper supports both chunked as well as word level timestamps. (default: chunk)",
 )
 parser.add_argument(
-    "--hf_token",
+    "--hf-token",
     required=False,
     default="no_token",
     type=str,
