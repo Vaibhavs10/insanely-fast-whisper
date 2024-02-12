@@ -1,4 +1,3 @@
-import torch
 import requests
 import torch
 import numpy as np
@@ -59,9 +58,12 @@ def preprocess_inputs(inputs):
     return inputs, diarizer_inputs
 
 
-def diarize_audio(diarizer_inputs, diarization_pipeline):
+def diarize_audio(diarizer_inputs, diarization_pipeline, num_speakers, min_speakers, max_speakers):
     diarization = diarization_pipeline(
         {"waveform": diarizer_inputs, "sample_rate": 16000},
+        num_speakers=num_speakers,
+        min_speakers=min_speakers,
+        max_speakers=max_speakers,
     )
 
     segments = []
