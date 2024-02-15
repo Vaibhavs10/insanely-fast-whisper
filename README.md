@@ -38,6 +38,14 @@ pipx install insanely-fast-whisper
 ```
 *Note: Due to a dependency on [`onnxruntime`, Python 3.12 is currently not supported](https://github.com/microsoft/onnxruntime/issues/17842). You can force a Python version (e.g. 3.11) by adding `--python python3.11` to the command.*
 
+⚠️ If you have python 3.11.XX installed, `pipx` may parse the version incorrectly and install a very old version of `insanely-fast-whisper` without telling you (version `0.0.8`, which won't work anymore with the current `BetterTransformers`). In that case, you can install the latest version by passing `--ignore-requires-python` to `pip`:
+
+```bash
+pipx install insanely-fast-whisper --force --pip-args="--ignore-requires-python"
+```
+
+If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`.
+
 
 Run inference from any path on your computer:
 
@@ -107,7 +115,7 @@ The root cause of this problem is still unknown, however, you can resolve this b
 
 **How to avoid Out-Of-Memory (OOM) exceptions on Mac?**
 
-The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. Typically you can run with `--batch-size 4` without any issues (should use roughly 12GB GPU VRAM). Don't forget to set `--device mps`.
+The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. Typically you can run with `--batch-size 4` without any issues (should use roughly 12GB GPU VRAM). Don't forget to set `--device-id mps`.
 
 ## How to use Whisper without a CLI?
 
@@ -115,27 +123,28 @@ The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. T
 <summary>All you need to run is the below snippet:</summary>
 
 ```
-pip install transformers optimum accelerate
+pip install --upgrade transformers optimum accelerate
 ```
 
 ```python
 import torch
 from transformers import pipeline
+from transformers.utils import is_flash_attn_2_available
 
 pipe = pipeline(
     "automatic-speech-recognition",
-    model=args.model_name,
+    model="openai/whisper-large-v3", # select checkpoint from https://huggingface.co/openai/whisper-large-v3#model-details
     torch_dtype=torch.float16,
-    device="cuda", # or mps for Mac devices
-    model_kwargs={"use_flash_attention_2": True}, # set to False for old GPUs
+    device="cuda:0", # or mps for Mac devices
+    model_kwargs={"attn_implementation": "flash_attention_2"} if is_flash_attn_2_available() else {"attn_implementation": "sdpa"},
 )
 
-pipe.model = pipe.model.to_bettertransformer() # only if `use_flash_attention_2` is set to False
-
-outputs = pipe("<FILE_NAME>",
-               chunk_length_s=30,
-               batch_size=24,
-               return_timestamps=True)
+outputs = pipe(
+    "<FILE_NAME>",
+    chunk_length_s=30,
+    batch_size=24,
+    return_timestamps=True,
+)
 
 outputs
 ```

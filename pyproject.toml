@@ -1,6 +1,6 @@
 [project]
 name = "insanely-fast-whisper"
-version = "0.0.12"
+version = "0.0.13"
 description = "An insanely fast whisper CLI"
 authors = [
     { name = "VB", email = "reachvaibhavs10@gmail.com" },
@@ -14,7 +14,7 @@ dependencies = [
     "setuptools>=68.2.2",
     "rich>=13.7.0",
 ]
-requires-python = ">=3.8,<=3.11"
+requires-python = ">=3.8,<3.12"
 readme = "README.md"
 license = { text = "MIT" }
 
