@@ -1,4 +1,7 @@
+import os
 from typing import Any
+import time
+import subprocess
 import torch
 import numpy as np
 from transformers import (
@@ -13,35 +16,65 @@ from transformers.models.whisper.tokenization_whisper import LANGUAGES
 from cog import BasePredictor, Input, Path
 
 
+PIPELINE_URL = (
+    "https://weights.replicate.delivery/default/incredibly-fast-whisper-pipe.tar"
+)
+PIPELINE_CACHE = "whisper-cache"
+
+
+def prepare_weights():
+    """Shows how to get the weights from HuggingFace Hub and then upload to Replicate google cloud bucket for faster boot time."""
+    model_id = "openai/whisper-large-v3"
+    torch_dtype = torch.float16
+    model_cache = "model_cache"
+    model = WhisperForConditionalGeneration.from_pretrained(
+        model_id,
+        torch_dtype=torch_dtype,
+        cache_dir=model_cache,
+    )
+
+    tokenizer = WhisperTokenizerFast.from_pretrained(model_id, cache_dir=model_cache)
+    feature_extractor = WhisperFeatureExtractor.from_pretrained(
+        model_id, cache_dir=model_cache
+    )
+
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=model,
+        tokenizer=tokenizer,
+        feature_extractor=feature_extractor,
+        model_kwargs={"use_flash_attention_2": True},
+        torch_dtype=torch_dtype,
+    )
+    pipe.save_pretrained(
+        PIPELINE_CACHE, safe_serialization=True
+    )  # Then copy this dir to google cloud bucket that can later be downloaded from PIPELINE_URL
+
+
+def download_weights(url, dest):
+    start = time.time()
+    print("downloading url: ", url)
+    print("downloading to: ", dest)
+    subprocess.check_call(["pget", "-x", url, dest], close_fds=False)
+    print("downloading took: ", time.time() - start)
+
+
 class Predictor(BasePredictor):
     def setup(self):
         """Loads whisper models into memory to make running multiple predictions efficient"""
-        self.model_cache = "model_cache"
         model_id = "openai/whisper-large-v3"
         torch_dtype = torch.float16
         self.device = "cuda:0"
-        model = WhisperForConditionalGeneration.from_pretrained(
-            model_id,
-            torch_dtype=torch_dtype,
-            cache_dir=self.model_cache,
-        ).to(self.device)
 
-        tokenizer = WhisperTokenizerFast.from_pretrained(
-            model_id, cache_dir=self.model_cache
-        )
-        feature_extractor = WhisperFeatureExtractor.from_pretrained(
-            model_id, cache_dir=self.model_cache
-        )
+        if not os.path.exists(PIPELINE_CACHE):
+            download_weights(PIPELINE_URL, PIPELINE_CACHE)
 
         self.pipe = pipeline(
-            "automatic-speech-recognition",
-            model=model,
-            tokenizer=tokenizer,
-            feature_extractor=feature_extractor,
-            model_kwargs={"use_flash_attention_2": True},
-            torch_dtype=torch_dtype,
+            task="automatic-speech-recognition",
+            model=PIPELINE_CACHE,
             device=self.device,
         )
+
         self.diarization_pipeline = None
 
     def predict(
@@ -50,7 +83,7 @@ class Predictor(BasePredictor):
         task: str = Input(
             choices=["transcribe", "translate"],
             default="transcribe",
-            description="Task to perform: transcribe or translate to another language. (default: transcribe).",
+            description="Task to perform: transcribe or translate to another language.",
         ),
         language: str = Input(
             default="None",
@@ -59,12 +92,12 @@ class Predictor(BasePredictor):
         ),
         batch_size: int = Input(
             default=24,
-            description="Number of parallel batches you want to compute. Reduce if you face OOMs. (default: 24).",
+            description="Number of parallel batches you want to compute. Reduce if you face OOMs.",
         ),
         timestamp: str = Input(
             default="chunk",
             choices=["chunk", "word"],
-            description="Whisper supports both chunked as well as word level timestamps. (default: chunk).",
+            description="Whisper supports both chunked as well as word level timestamps.",
         ),
         diarise_audio: bool = Input(
             default=False,
@@ -99,7 +132,7 @@ class Predictor(BasePredictor):
                     self.diarization_pipeline = Pipeline.from_pretrained(
                         "pyannote/speaker-diarization-3.1",
                         use_auth_token=hf_token,
-                        cache_dir=self.model_cache,
+                        cache_dir=PIPELINE_CACHE,
                     )
                     self.diarization_pipeline.to(torch.device(self.device))
                     print("diarization_pipeline loaded!")
