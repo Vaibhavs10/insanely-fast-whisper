@@ -86,10 +86,46 @@ parser.add_argument(
     type=str,
     help="Name of the pretrained model/ checkpoint to perform diarization. (default: pyannote/speaker-diarization)",
 )
-
+parser.add_argument(
+    "--num-speakers",
+    required=False,
+    default=None,
+    type=int,
+    help="Specifies the exact number of speakers present in the audio file. Useful when the exact number of participants in the conversation is known. Must be at least 1. Cannot be used together with --min-speakers or --max-speakers. (default: None)",
+)
+parser.add_argument(
+    "--min-speakers",
+    required=False,
+    default=None,
+    type=int,
+    help="Sets the minimum number of speakers that the system should consider during diarization. Must be at least 1. Cannot be used together with --num-speakers. Must be less than or equal to --max-speakers if both are specified. (default: None)",
+)
+parser.add_argument(
+    "--max-speakers",
+    required=False,
+    default=None,
+    type=int,
+    help="Defines the maximum number of speakers that the system should consider in diarization. Must be at least 1. Cannot be used together with --num-speakers. Must be greater than or equal to --min-speakers if both are specified. (default: None)",
+)
 
 def main():
     args = parser.parse_args()
+
+    if args.num_speakers is not None and (args.min_speakers is not None or args.max_speakers is not None):
+        parser.error("--num-speakers cannot be used together with --min-speakers or --max-speakers.")
+
+    if args.num_speakers is not None and args.num_speakers < 1:
+        parser.error("--num-speakers must be at least 1.")
+
+    if args.min_speakers is not None and args.min_speakers < 1:
+        parser.error("--min-speakers must be at least 1.")
+
+    if args.max_speakers is not None and args.max_speakers < 1:
+        parser.error("--max-speakers must be at least 1.")
+
+    if args.min_speakers is not None and args.max_speakers is not None and args.min_speakers > args.max_speakers:
+        if args.min_speakers > args.max_speakers:
+            parser.error("--min-speakers cannot be greater than --max-speakers.")
 
     pipe = pipeline(
         "automatic-speech-recognition",
