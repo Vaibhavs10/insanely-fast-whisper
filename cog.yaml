@@ -1,0 +1,24 @@
+# Configuration for Cog ⚙️
+# Reference: https://github.com/replicate/cog/blob/main/docs/yaml.md
+
+build:
+  gpu: true
+  system_packages:
+    - "ffmpeg"
+    - "ninja-build"
+  python_version: "3.11"
+  python_packages:
+    - "torch==2.0.1"
+    - "tqdm==4.66.1"
+    - "more-itertools==10.1.0"
+    - "transformers==4.37.2"
+    - "ffmpeg-python==0.2.0"
+    - "openai-whisper==20231106"
+    - "optimum==1.14.0"
+    - "pyannote-audio==3.1.0"
+    - "rich==13.7.0"
+  run: 
+    - pip install packaging
+    - pip install flash-attn --no-build-isolation
+    - curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/download/v0.6.0/pget_linux_x86_64" && chmod +x /usr/local/bin/pget
+predict: "predict.py:Predictor"
