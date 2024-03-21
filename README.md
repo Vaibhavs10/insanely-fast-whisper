@@ -4,6 +4,8 @@ An opinionated CLI to transcribe Audio files w/ Whisper on-device! Powered by �
 
 **TL;DR** - Transcribe **150** minutes (2.5 hours) of audio in less than **98** seconds - with [OpenAI's Whisper Large v3](https://huggingface.co/openai/whisper-large-v3). Blazingly fast transcription is now a reality!⚡️
 
+If you are looking for an API, check out [this project](https://github.com/JigsawStack/insanely-fast-whisper-api)
+
 <p align="center">
 <img src="https://huggingface.co/datasets/reach-vb/random-images/resolve/main/insanely-fast-whisper-img.png" width="615" height="308">
 </p>
@@ -167,3 +169,4 @@ outputs
 1. @ochen1 created a brilliant MVP for a CLI here: https://github.com/ochen1/insanely-fast-whisper-cli (Try it out now!)
 2. @arihanv created an app (Shush) using NextJS (Frontend) & Modal (Backend): https://github.com/arihanv/Shush (Check it outtt!)
 3. @kadirnar created a python package on top of the transformers with optimisations: https://github.com/kadirnar/whisper-plus (Go go go!!!)
+4. @yoeven created an API layer on top of the transformers with concurrency optimisations: https://github.com/JigsawStack/insanely-fast-whisper-api
