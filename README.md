@@ -96,7 +96,7 @@ The `insanely-fast-whisper` repo provides an all round support for running Whisp
                         Use Flash Attention 2. Read the FAQs to see how to install FA2 correctly. (default: False)
   --timestamp {chunk,word}
                         Whisper supports both chunked as well as word level timestamps. (default: chunk)
-  --hf_token TOKEN
+  --hf-token HF_TOKEN
                         Provide a hf.co/settings/token for Pyannote.audio to diarise the audio clips
   --diarization_model DIARIZATION_MODEL
                         Name of the pretrained model/ checkpoint to perform diarization. (default: pyannote/speaker-diarization)
