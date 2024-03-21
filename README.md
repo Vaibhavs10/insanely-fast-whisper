@@ -33,6 +33,13 @@ Install `insanely-fast-whisper` with `pipx` (`pip install pipx` or `brew install
 ```bash
 pipx install insanely-fast-whisper
 ```
+
+You also need to have ffmpeg installed; 
+
+```bash
+brew install ffmpeg
+```
+
 *Note: Due to a dependency on [`onnxruntime`, Python 3.12 is currently not supported](https://github.com/microsoft/onnxruntime/issues/17842). You can force a Python version (e.g. 3.11) by adding `--python python3.11` to the command.*
 
 ⚠️ If you have python 3.11.XX installed, `pipx` may parse the version incorrectly and install a very old version of `insanely-fast-whisper` without telling you (version `0.0.8`, which won't work anymore with the current `BetterTransformers`). In that case, you can install the latest version by passing `--ignore-requires-python` to `pip`:
