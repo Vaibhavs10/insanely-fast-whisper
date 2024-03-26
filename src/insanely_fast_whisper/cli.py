@@ -107,7 +107,13 @@ parser.add_argument(
     type=int,
     help="Defines the maximum number of speakers that the system should consider in diarization. Must be at least 1. Cannot be used together with --num-speakers. Must be greater than or equal to --min-speakers if both are specified. (default: None)",
 )
-
+parser.add_argument(
+    "--diarize-CPU",
+    required=False,
+    default=None,
+    type=int,
+    help="TODO",
+)
 def main():
     args = parser.parse_args()
 
