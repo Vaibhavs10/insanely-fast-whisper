@@ -147,7 +147,7 @@ def main():
         quantization_config=bnb_config,
         low_cpu_mem_usage=True,
         use_safetensors=True,
-        attn_implementation="flash_attention_2",
+        attn_implementation="flash_attention_2" if args.flash else "sdpa",
         device_map="auto")
 
     pipe = pipeline(
