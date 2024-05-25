@@ -25,3 +25,8 @@ build-backend = "pdm.backend"
 
 [project.scripts]
 insanely-fast-whisper = "insanely_fast_whisper.cli:main"
+
+[project.urls]
+# Name based
+Homepage = "https://github.com/Vaibhavs10/insanely-fast-whisper"
+Twitter = "https://twitter.com/reach_vb"
