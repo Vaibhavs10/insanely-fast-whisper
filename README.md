@@ -4,6 +4,10 @@ An opinionated CLI to transcribe Audio files w/ Whisper on-device! Powered by �
 
 **TL;DR** - Transcribe **150** minutes (2.5 hours) of audio in less than **98** seconds - with [OpenAI's Whisper Large v3](https://huggingface.co/openai/whisper-large-v3). Blazingly fast transcription is now a reality!⚡️
 
+```
+pipx install insanely-fast-whisper==0.0.14 --force
+```
+
 <p align="center">
 <img src="https://huggingface.co/datasets/reach-vb/random-images/resolve/main/insanely-fast-whisper-img.png" width="615" height="308">
 </p>
