@@ -1,6 +1,6 @@
 [project]
 name = "insanely-fast-whisper"
-version = "0.0.14"
+version = "0.0.15"
 description = "An insanely fast whisper CLI"
 authors = [
     { name = "VB", email = "reachvaibhavs10@gmail.com" },
@@ -8,7 +8,6 @@ authors = [
 ]
 dependencies = [
     "transformers",
-    "optimum",
     "accelerate",
     "pyannote-audio>=3.1.0",
     "setuptools>=68.2.2",
