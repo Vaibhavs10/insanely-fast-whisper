@@ -1,6 +1,6 @@
 import json
 import argparse
-from transformers import pipeline
+from transformers import pipeline, BitsAndBytesConfig, AutoModelForSpeechSeq2Seq
 from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
 import torch
 
@@ -107,6 +107,13 @@ parser.add_argument(
     type=int,
     help="Defines the maximum number of speakers that the system should consider in diarization. Must be at least 1. Cannot be used together with --num-speakers. Must be greater than or equal to --min-speakers if both are specified. (default: None)",
 )
+parser.add_argument(
+    "--bnb-quants",
+    required=False,
+    default=False,
+    type=bool,
+    help="Quantization configuration for BitsAndBytes. (default: None)",
+)
 
 def main():
     args = parser.parse_args()
@@ -127,9 +134,25 @@ def main():
         if args.min_speakers > args.max_speakers:
             parser.error("--min-speakers cannot be greater than --max-speakers.")
 
+    if args.bnb_quants:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True, 
+            bnb_4bit_compute_dtype=torch.bfloat16
+        )
+    else:
+        bnb_config = None
+
+    model = AutoModelForSpeechSeq2Seq.from_pretrained(
+        args.model_name,
+        quantization_config=bnb_config,
+        low_cpu_mem_usage=True,
+        use_safetensors=True,
+        attn_implementation="flash_attention_2" if args.flash else "sdpa",
+        device_map="auto")
+
     pipe = pipeline(
         "automatic-speech-recognition",
-        model=args.model_name,
+        model=model,
         torch_dtype=torch.float16,
         device="mps" if args.device_id == "mps" else f"cuda:{args.device_id}",
         model_kwargs={"attn_implementation": "flash_attention_2"} if args.flash else {"attn_implementation": "sdpa"},
