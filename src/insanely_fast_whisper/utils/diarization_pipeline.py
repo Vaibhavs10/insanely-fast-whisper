@@ -11,8 +11,15 @@ def diarize(args, outputs):
         checkpoint_path=args.diarization_model,
         use_auth_token=args.hf_token,
     )
+    torchDevice = None
+    if args.device_id == "mps":
+        torchDevice = "mps"
+    elif args.diarize_CPU == 1:
+        torchDevice = "cpu"
+    else:
+        torchDevice = f"cuda:{args.device_id}"
     diarization_pipeline.to(
-        torch.device("mps" if args.device_id == "mps" else f"cuda:{args.device_id}")
+        torch.device(torchDevice)
     )
 
     with Progress(
