@@ -3,6 +3,7 @@ import json
 import os
 
 
+
 class TxtFormatter:
     @classmethod
     def preamble(cls):
@@ -20,7 +21,7 @@ class SrtFormatter:
         return ""
 
     @classmethod
-    def format_seconds(cls, seconds):
+    def format_seconds(cls, seconds): # this function nulls if seconds is None
         whole_seconds = int(seconds)
         milliseconds = int((seconds - whole_seconds) * 1000)
 
@@ -34,6 +35,8 @@ class SrtFormatter:
     def format_chunk(cls, chunk, index):
         text = chunk['text']
         start, end = chunk['timestamp'][0], chunk['timestamp'][1]
+        if end is None:
+            end = start + 10 # default value just to prevent last timestamp null; there probably is a better more elegant solution somewhere
         start_format, end_format = cls.format_seconds(start), cls.format_seconds(end)
         return f"{index}\n{start_format} --> {end_format}\n{text}\n\n"
 
@@ -44,7 +47,7 @@ class VttFormatter:
         return "WEBVTT\n\n"
 
     @classmethod
-    def format_seconds(cls, seconds):
+    def format_seconds(cls, seconds): # this function nulls if seconds is None
         whole_seconds = int(seconds)
         milliseconds = int((seconds - whole_seconds) * 1000)
 
@@ -58,6 +61,8 @@ class VttFormatter:
     def format_chunk(cls, chunk, index):
         text = chunk['text']
         start, end = chunk['timestamp'][0], chunk['timestamp'][1]
+        if end is None:
+            end = start + 10 # default value just to prevent last timestamp null; there probably is a better more elegant solution somewhere
         start_format, end_format = cls.format_seconds(start), cls.format_seconds(end)
         return f"{index}\n{start_format} --> {end_format}\n{text}\n\n"
 
@@ -87,7 +92,7 @@ def convert(input_path, output_format, output_dir, verbose):
 def main():
     parser = argparse.ArgumentParser(description="Convert JSON to an output format.")
     parser.add_argument("input_file", help="Input JSON file path")
-    parser.add_argument("-f", "--output_format", default="all", help="Format of the output file (default: srt)", choices=["txt", "vtt", "srt"])
+    parser.add_argument("-f", "--output_format", default="srt", help="Format of the output file (default: srt)", choices=["txt", "vtt", "srt"]) # all was not a valid choice for default, so srt is set as default (like what help said)
     parser.add_argument("-o", "--output_dir", default=".", help="Directory where the output file/s is/are saved")
     parser.add_argument("--verbose", action="store_true", help="Print each VTT entry as it's added")
 
