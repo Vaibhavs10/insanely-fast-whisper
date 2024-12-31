@@ -24,7 +24,7 @@ build-backend = "pdm.backend"
 
 [project.scripts]
 insanely-fast-whisper = "insanely_fast_whisper.cli:main"
-
+insanely-fast-whisper-convert = "insanely_fast_whisper.utils.convert_output:main"
 [project.urls]
 # Name based
 Homepage = "https://github.com/Vaibhavs10/insanely-fast-whisper"
