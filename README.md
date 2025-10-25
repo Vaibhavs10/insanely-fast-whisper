@@ -15,7 +15,8 @@ pipx install 'insanely-fast-whisper[mac]' --force
 ```
 
 The `mac` extra bundles Apple’s MLX runtime plus the MLX Whisper and Parakeet bindings, so `pipx install 'insanely-fast-whisper[mac]'`
-sets up both MLX speech backends automatically.
+sets up both MLX speech backends automatically. These wheels target Python 3.10 and newer; if you use an older interpreter the
+extra installs but skips the MLX packages, so upgrade Python to leverage the MLX backend fully.
 
 <p align="center">
 <img src="https://huggingface.co/datasets/reach-vb/random-images/resolve/main/insanely-fast-whisper-img.png" width="615" height="308">
@@ -53,7 +54,7 @@ pipx install insanely-fast-whisper
 pipx install insanely-fast-whisper --force --pip-args="--ignore-requires-python"
 ```
 
-If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`. On macOS you can add the optional extras with `pip install "insanely-fast-whisper[mac]"` to grab the MLX Whisper and Parakeet backends automatically.
+If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`. On macOS you can add the optional extras with `pip install "insanely-fast-whisper[mac]"` (requires Python 3.10+) to grab the MLX Whisper and Parakeet backends automatically.
 
 
 Run inference from any path on your computer:
