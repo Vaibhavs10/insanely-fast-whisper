@@ -8,6 +8,16 @@ An opinionated CLI to transcribe Audio files w/ Whisper on-device! Powered by �
 pipx install insanely-fast-whisper==0.0.15 --force
 ```
 
+If you are on macOS and want to use the MLX backend, install the optional dependencies with:
+
+```
+pipx install 'insanely-fast-whisper[mac]' --force
+```
+
+The `mac` extra bundles Apple’s MLX runtime, the MLX Whisper bindings, and pulls the Parakeet speech models directly from the
+[mlx-parakeet](https://github.com/ml-explore/mlx-parakeet) repository so you can switch between `--mlx-model whisper` and
+`--mlx-model parakeet`.
+
 <p align="center">
 <img src="https://huggingface.co/datasets/reach-vb/random-images/resolve/main/insanely-fast-whisper-img.png" width="615" height="308">
 </p>
@@ -44,7 +54,7 @@ pipx install insanely-fast-whisper
 pipx install insanely-fast-whisper --force --pip-args="--ignore-requires-python"
 ```
 
-If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`.
+If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`. On macOS you can add the optional extras with `pip install "insanely-fast-whisper[mac]"` to grab both the MLX Whisper and Parakeet backends.
 
 
 Run inference from any path on your computer:
@@ -52,7 +62,7 @@ Run inference from any path on your computer:
 ```bash
 insanely-fast-whisper --file-name <filename or URL>
 ```
-*Note: if you are running on macOS, you also need to add `--device-id mps` flag.*
+*Note: on macOS install the MLX extras so the CLI can default to the MLX backend. Use `--backend transformers` together with `--device-id mps` if you prefer the Hugging Face pipeline on Metal.*
 
 🔥 You can run [Whisper-large-v3](https://huggingface.co/openai/whisper-large-v3) w/ [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) from this CLI too:
 
@@ -73,7 +83,10 @@ pipx run insanely-fast-whisper --file-name <filename or URL>
 ```
 
 > [!NOTE]
-> The CLI is highly opinionated and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults. 
+> The CLI is highly opinionated and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults.
+
+> [!TIP]
+> When choosing `--mlx-model parakeet`, supply an MLX-compatible Parakeet checkpoint through `--model-name` following the guidance from the MLX Parakeet project.
 
 
 ## CLI Options
@@ -85,10 +98,14 @@ The `insanely-fast-whisper` repo provides an all round support for running Whisp
                         Path or URL to the audio file to be transcribed.
   --device-id DEVICE_ID
                         Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")
+  --backend {auto,transformers,mlx}
+                        Backend to use: transformers, mlx, or auto to pick based on the environment. (default: auto)
   --transcript-path TRANSCRIPT_PATH
                         Path to save the transcription output. (default: output.json)
   --model-name MODEL_NAME
                         Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v3)
+  --mlx-model {whisper,parakeet}
+                        When using the MLX backend, choose between Whisper or Parakeet checkpoints. (default: whisper)
   --task {transcribe,translate}
                         Task to perform: transcribe or translate to another language. (default: transcribe)
   --language LANGUAGE   

@@ -1,8 +1,15 @@
-import json
 import argparse
-from transformers import pipeline
-from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
-import torch
+import json
+import platform
+
+from .backends import (
+    BackendDependencyError,
+    BackendSelectionError,
+    is_mlx_available,
+    run_mlx_backend,
+    run_transformers_backend,
+    select_backend,
+)
 
 from .utils.diarization_pipeline import diarize
 from .utils.result import build_result
@@ -20,6 +27,20 @@ parser.add_argument(
     default="0",
     type=str,
     help='Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")',
+)
+parser.add_argument(
+    "--backend",
+    required=False,
+    default="auto",
+    choices=["auto", "transformers", "mlx"],
+    help="Backend to use: transformers, mlx, or auto to pick based on the environment. (default: auto)",
+)
+parser.add_argument(
+    "--mlx-model",
+    required=False,
+    default="whisper",
+    choices=["whisper", "parakeet"],
+    help="When using the MLX backend, choose between Whisper or Parakeet checkpoints. (default: whisper)",
 )
 parser.add_argument(
     "--transcript-path",
@@ -127,41 +148,41 @@ def main():
         if args.min_speakers > args.max_speakers:
             parser.error("--min-speakers cannot be greater than --max-speakers.")
 
-    pipe = pipeline(
-        "automatic-speech-recognition",
-        model=args.model_name,
-        torch_dtype=torch.float16,
-        device="mps" if args.device_id == "mps" else f"cuda:{args.device_id}",
-        model_kwargs={"attn_implementation": "flash_attention_2"} if args.flash else {"attn_implementation": "sdpa"},
-    )
-
-    if args.device_id == "mps":
-        torch.mps.empty_cache()
-    # elif not args.flash:
-        # pipe.model = pipe.model.to_bettertransformer()
-
-    ts = "word" if args.timestamp == "word" else True
-
     language = None if args.language == "None" else args.language
 
-    generate_kwargs = {"task": args.task, "language": language}
+    try:
+        backend = select_backend(
+            device_id=args.device_id,
+            requested_backend=args.backend,
+            platform_name=platform.system(),
+            mlx_available=is_mlx_available(),
+        )
+    except BackendSelectionError as exc:
+        parser.error(str(exc))
 
-    if args.model_name.split(".")[-1] == "en":
-        generate_kwargs.pop("task")
-
-    with Progress(
-        TextColumn("🤗 [progress.description]{task.description}"),
-        BarColumn(style="yellow1", pulse_style="white"),
-        TimeElapsedColumn(),
-    ) as progress:
-        progress.add_task("[yellow]Transcribing...", total=None)
-
-        outputs = pipe(
-            args.file_name,
-            chunk_length_s=30,
+    if backend == "mlx":
+        try:
+            outputs = run_mlx_backend(
+                audio_path=args.file_name,
+                model_name=args.model_name,
+                task=args.task,
+                language=language,
+                timestamp=args.timestamp,
+                batch_size=args.batch_size,
+                mlx_model=args.mlx_model,
+            )
+        except BackendDependencyError as exc:
+            parser.error(str(exc))
+    else:
+        outputs = run_transformers_backend(
+            audio_path=args.file_name,
+            model_name=args.model_name,
+            device_id=args.device_id,
             batch_size=args.batch_size,
-            generate_kwargs=generate_kwargs,
-            return_timestamps=ts,
+            task=args.task,
+            language=language,
+            timestamp=args.timestamp,
+            flash=args.flash,
         )
 
     if args.hf_token != "no_token":
