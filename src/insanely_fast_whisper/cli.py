@@ -168,7 +168,6 @@ def main():
                 task=args.task,
                 language=language,
                 timestamp=args.timestamp,
-                batch_size=args.batch_size,
                 mlx_model=args.mlx_model,
             )
         except BackendDependencyError as exc:

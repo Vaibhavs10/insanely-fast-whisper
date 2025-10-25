@@ -1,28 +1,30 @@
-"""Backend helpers for insanely-fast-whisper."""
+"""Minimal backend helpers for insanely-fast-whisper."""
 from __future__ import annotations
 
 import importlib
 import importlib.util
 import platform
-from contextlib import contextmanager
 from typing import Dict, Iterable, List, Optional
 
 
+MLX_MODULES = {
+    "whisper": "mlx_whisper",
+    "parakeet": "mlx_parakeet",
+}
+
+
 class BackendSelectionError(RuntimeError):
-    """Raised when an invalid backend is requested."""
+    """Raised when a backend cannot be used in the current environment."""
 
 
 class BackendDependencyError(RuntimeError):
-    """Raised when optional backend dependencies are missing."""
+    """Raised when an optional backend dependency is missing."""
 
 
 def is_mlx_available() -> bool:
-    """Return True when at least one MLX speech package can be located."""
+    """Return True when any MLX speech package can be imported."""
 
-    return any(
-        importlib.util.find_spec(package) is not None  # type: ignore[attr-defined]
-        for package in ("mlx_whisper", "mlx_parakeet")
-    )
+    return any(importlib.util.find_spec(module) is not None for module in MLX_MODULES.values())
 
 
 def select_backend(
@@ -32,10 +34,10 @@ def select_backend(
     platform_name: Optional[str] = None,
     mlx_available: Optional[bool] = None,
 ) -> str:
-    """Resolve the backend that should be used for transcription."""
+    """Resolve the backend for transcription based on CLI flags and environment."""
 
-    if platform_name is None:
-        platform_name = platform.system()
+    platform_name = platform_name or platform.system()
+    available = mlx_available if mlx_available is not None else is_mlx_available()
 
     if requested_backend == "transformers":
         return "transformers"
@@ -43,51 +45,21 @@ def select_backend(
     if requested_backend == "mlx":
         if platform_name != "Darwin":
             raise BackendSelectionError("The MLX backend is only supported on macOS.")
-        if not (mlx_available if mlx_available is not None else is_mlx_available()):
+        if not available:
             raise BackendSelectionError(
-                "The MLX backend requires the optional MLX dependencies. "
-                "Install insanely-fast-whisper[mac]."
+                "The MLX backend requires the optional MLX dependencies. Install insanely-fast-whisper[mac]."
             )
         return "mlx"
 
-    # Auto mode
-    if device_id != "mps":
-        return "transformers"
-
-    if platform_name != "Darwin":
-        return "transformers"
-
-    available = mlx_available if mlx_available is not None else is_mlx_available()
-    if not available:
+    if device_id == "mps" and platform_name == "Darwin":
+        if available:
+            return "mlx"
         raise BackendSelectionError(
-            "Detected macOS/Metal but the MLX dependencies are missing. "
-            "Install insanely-fast-whisper[mac] or select --backend transformers."
+            "Detected macOS/Metal but the MLX dependencies are missing. Install insanely-fast-whisper[mac] "
+            "or select --backend transformers."
         )
 
-    return "mlx"
-
-
-@contextmanager
-def _progress(task_description: str):
-    from rich.progress import BarColumn, Progress, TextColumn, TimeElapsedColumn
-
-    with Progress(
-        TextColumn("🤗 [progress.description]{task.description}"),
-        BarColumn(style="yellow1", pulse_style="white"),
-        TimeElapsedColumn(),
-    ) as progress:
-        progress.add_task(task_description, total=None)
-        yield
-
-
-def _import_mlx_module(module_name: str):
-    try:
-        return importlib.import_module(module_name)
-    except (ImportError, OSError) as exc:  # pragma: no cover - exercised in real envs
-        raise BackendDependencyError(
-            "The MLX backend requires optional dependencies. Install "
-            "insanely-fast-whisper[mac] and ensure the '{}' package is available.".format(module_name)
-        ) from exc
+    return "transformers"
 
 
 def _segments_to_chunks(segments: Iterable[Dict], timestamp_mode: str) -> List[Dict]:
@@ -139,45 +111,29 @@ def run_transformers_backend(
     if model_name.split(".")[-1] == "en":
         generate_kwargs.pop("task", None)
 
-    with _progress("[yellow]Transcribing with Transformers..."):
-        pipe = pipeline(
-            "automatic-speech-recognition",
-            model=model_name,
-            torch_dtype=torch.float16,
-            device="mps" if device_id == "mps" else f"cuda:{device_id}",
-            model_kwargs={"attn_implementation": attn_impl},
-        )
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=model_name,
+        torch_dtype=torch.float16,
+        device="mps" if device_id == "mps" else f"cuda:{device_id}",
+        model_kwargs={"attn_implementation": attn_impl},
+    )
 
-        outputs = pipe(
-            audio_path,
-            chunk_length_s=30,
-            batch_size=batch_size,
-            generate_kwargs=generate_kwargs,
-            return_timestamps=ts,
-        )
+    outputs = pipe(
+        audio_path,
+        chunk_length_s=30,
+        batch_size=batch_size,
+        generate_kwargs=generate_kwargs,
+        return_timestamps=ts,
+    )
 
     if device_id == "mps":
         torch.mps.empty_cache()
 
     if "chunks" not in outputs:
-        chunks = _segments_to_chunks(outputs.get("segments", []), timestamp)
-        outputs["chunks"] = chunks
+        outputs["chunks"] = _segments_to_chunks(outputs.get("segments", []), timestamp)
 
     return outputs
-
-
-def _resolve_whisper_repo(model_name: str) -> str:
-    if model_name == "openai/whisper-large-v3":
-        return "mlx-community/whisper-large-v3"
-    return model_name
-
-
-def _resolve_parakeet_repo(model_name: str) -> str:
-    if model_name == "openai/whisper-large-v3":
-        raise BackendSelectionError(
-            "Specify --model-name with an MLX-compatible Parakeet checkpoint when using --mlx-model parakeet."
-        )
-    return model_name
 
 
 def run_mlx_backend(
@@ -187,44 +143,44 @@ def run_mlx_backend(
     task: str,
     language: Optional[str],
     timestamp: str,
-    batch_size: int,
     mlx_model: str,
 ) -> Dict:
+    module_name = MLX_MODULES.get(mlx_model)
+    if module_name is None:
+        raise BackendSelectionError(f"Unknown MLX model '{mlx_model}'.")
+
+    try:
+        module = importlib.import_module(module_name)
+    except (ImportError, OSError) as exc:  # pragma: no cover - exercised in real envs
+        raise BackendDependencyError(
+            "The MLX backend requires optional dependencies. Install insanely-fast-whisper[mac] and ensure the "
+            f"'{module_name}' package is available."
+        ) from exc
+
+    if mlx_model == "whisper" and model_name == "openai/whisper-large-v3":
+        repo = "mlx-community/whisper-large-v3"
+    elif mlx_model == "parakeet":
+        if model_name == "openai/whisper-large-v3":
+            raise BackendSelectionError(
+                "Specify --model-name with an MLX-compatible Parakeet checkpoint when using --mlx-model parakeet."
+            )
+        repo = model_name
+    else:
+        repo = model_name
+
     decode_options: Dict[str, str] = {"task": task}
     if language:
         decode_options["language"] = language
 
-    if mlx_model == "whisper":
-        module = _import_mlx_module("mlx_whisper")
-        repo = _resolve_whisper_repo(model_name)
-        if repo.split(".")[-1] == "en":
-            decode_options.pop("task", None)
+    if repo.split(".")[-1] == "en":
+        decode_options.pop("task", None)
 
-        with _progress("[yellow]Transcribing with MLX Whisper..."):
-            result = module.transcribe(
-                audio_path,
-                path_or_hf_repo=repo,
-                word_timestamps=timestamp == "word",
-                verbose=False,
-                **decode_options,
-            )
+    result = module.transcribe(
+        audio_path,
+        path_or_hf_repo=repo,
+        word_timestamps=timestamp == "word",
+        verbose=False,
+        **decode_options,
+    )
 
-    elif mlx_model == "parakeet":
-        module = _import_mlx_module("mlx_parakeet")
-        repo = _resolve_parakeet_repo(model_name)
-        if repo.split(".")[-1] == "en":
-            decode_options.pop("task", None)
-
-        with _progress("[yellow]Transcribing with MLX Parakeet..."):
-            result = module.transcribe(
-                audio_path,
-                path_or_hf_repo=repo,
-                word_timestamps=timestamp == "word",
-                verbose=False,
-                **decode_options,
-            )
-    else:
-        raise BackendSelectionError(f"Unknown MLX model '{mlx_model}'.")
-
-    chunks = _segments_to_chunks(result.get("segments", []), timestamp)
-    return {"text": result.get("text", ""), "chunks": chunks}
+    return {"text": result.get("text", ""), "chunks": _segments_to_chunks(result.get("segments", []), timestamp)}
