@@ -14,8 +14,8 @@ If you are on macOS and want to use the MLX backend, install the optional depend
 pipx install 'insanely-fast-whisper[mac]' --force
 ```
 
-The `mac` extra bundles Apple’s MLX runtime and the MLX Whisper bindings. Parakeet support expects an `mlx_parakeet` Python
-package on your system; install it separately before selecting `--mlx-model parakeet`.
+The `mac` extra bundles Apple’s MLX runtime plus the MLX Whisper and Parakeet bindings, so `pipx install 'insanely-fast-whisper[mac]'`
+sets up both MLX speech backends automatically.
 
 <p align="center">
 <img src="https://huggingface.co/datasets/reach-vb/random-images/resolve/main/insanely-fast-whisper-img.png" width="615" height="308">
@@ -53,7 +53,7 @@ pipx install insanely-fast-whisper
 pipx install insanely-fast-whisper --force --pip-args="--ignore-requires-python"
 ```
 
-If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`. On macOS you can add the optional extras with `pip install "insanely-fast-whisper[mac]"` to grab the MLX Whisper backend (install `mlx_parakeet` manually if you want the Parakeet flow).
+If you're installing with `pip`, you can pass the argument directly: `pip install insanely-fast-whisper --ignore-requires-python`. On macOS you can add the optional extras with `pip install "insanely-fast-whisper[mac]"` to grab the MLX Whisper and Parakeet backends automatically.
 
 
 Run inference from any path on your computer:
@@ -85,8 +85,7 @@ pipx run insanely-fast-whisper --file-name <filename or URL>
 > The CLI is highly opinionated and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults.
 
 > [!TIP]
-> When choosing `--mlx-model parakeet`, supply an MLX-compatible Parakeet checkpoint through `--model-name` and ensure the
-> `mlx_parakeet` package is available in your environment.
+> When choosing `--mlx-model parakeet`, supply an MLX-compatible Parakeet checkpoint through `--model-name`. The mac extra installs the required `parakeet-mlx` bindings for you.
 
 
 ## CLI Options

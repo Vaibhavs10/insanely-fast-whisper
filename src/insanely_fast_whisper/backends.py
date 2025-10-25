@@ -9,7 +9,7 @@ from typing import Dict, Iterable, List, Optional
 
 MLX_MODULES = {
     "whisper": "mlx_whisper",
-    "parakeet": "mlx_parakeet",
+    "parakeet": "parakeet_mlx",
 }
 
 

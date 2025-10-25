@@ -22,6 +22,7 @@ license = { text = "MIT" }
 mac = [
     "mlx>=0.29.0; sys_platform == 'darwin'",
     "mlx-whisper>=0.4.0; sys_platform == 'darwin'",
+    "parakeet-mlx>=0.4.0; sys_platform == 'darwin'",
 ]
 
 

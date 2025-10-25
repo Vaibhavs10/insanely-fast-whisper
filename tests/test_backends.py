@@ -11,7 +11,7 @@ from insanely_fast_whisper import backends
 
 
 def test_is_mlx_available_checks_both_packages():
-    specs = {"mlx_whisper": object(), "mlx_parakeet": None}
+    specs = {"mlx_whisper": object(), "parakeet_mlx": None}
     with mock.patch("importlib.util.find_spec", side_effect=lambda name: specs.get(name)):  # type: ignore[arg-type]
         assert backends.is_mlx_available()
 
