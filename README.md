@@ -5,7 +5,7 @@ An opinionated CLI to transcribe Audio files w/ Whisper on-device! Powered by �
 **TL;DR** - Transcribe **150** minutes (2.5 hours) of audio in less than **98** seconds - with [OpenAI's Whisper Large v3](https://huggingface.co/openai/whisper-large-v3). Blazingly fast transcription is now a reality!⚡️
 
 ```
-pipx install insanely-fast-whisper==0.0.15 --force
+pipx install insanely-fast-whisper==0.1.0 --force
 ```
 
 <p align="center">
@@ -36,6 +36,16 @@ Install `insanely-fast-whisper` with `pipx` (`pip install pipx` or `brew install
 
 ```bash
 pipx install insanely-fast-whisper
+```
+
+Prefer [`uv`](https://github.com/astral-sh/uv)? You can install and run the CLI the same way:
+
+```bash
+uv tool install insanely-fast-whisper
+# MLX extras on macOS
+uv tool install 'insanely-fast-whisper[mlx]'
+# or run without installing globally
+uv run --extra mlx insanely-fast-whisper --backend mlx --mlx-family whisper --file-name <filename>
 ```
 
 ⚠️ If you have python 3.11.XX installed, `pipx` may parse the version incorrectly and install a very old version of `insanely-fast-whisper` without telling you (version `0.0.8`, which won't work anymore with the current `BetterTransformers`). In that case, you can install the latest version by passing `--ignore-requires-python` to `pip`:
@@ -72,6 +82,25 @@ Don't want to install `insanely-fast-whisper`? Just use `pipx run`:
 pipx run insanely-fast-whisper --file-name <filename or URL>
 ```
 
+A short sample clip (`test.wav`) ships with the repo if you want to kick the tires quickly.
+
+### MLX backend (Apple Silicon)
+
+Install the MLX extras (via `pipx install 'insanely-fast-whisper[mlx]'`, `uv tool install 'insanely-fast-whisper[mlx]'`, or `uv add .[mlx]` when working in this repository) and run:
+
+```bash
+insanely-fast-whisper --backend mlx --mlx-family whisper --model-name mlx-community/whisper-tiny --file-name <filename or URL>
+```
+
+To try NVIDIA's Parakeet models on MLX:
+
+```bash
+insanely-fast-whisper --backend mlx --mlx-family parakeet --model-name mlx-community/parakeet-tdt_ctc-110m --file-name <filename or URL>
+```
+
+> [!NOTE]
+> Parakeet currently supports transcription only (`--task translate` is not available when `--mlx-family parakeet`).
+
 > [!NOTE]
 > The CLI is highly opinionated and only works on NVIDIA GPUs & Mac. Make sure to check out the defaults and the list of options you can play around with to maximise your transcription throughput. Run `insanely-fast-whisper --help` or `pipx run insanely-fast-whisper --help` to get all the CLI arguments along with their defaults. 
 
@@ -84,7 +113,11 @@ The `insanely-fast-whisper` repo provides an all round support for running Whisp
   --file-name FILE_NAME
                         Path or URL to the audio file to be transcribed.
   --device-id DEVICE_ID
-                        Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")
+                        Device identifier: GPU index, "mps" for Macs with Apple Silicon, or "cpu" for CPU inference. (default: "0")
+  --backend {transformers,mlx}
+                        Transcription backend to use. Use "transformers" for the PyTorch pipeline or "mlx" for Apple MLX models. (default: transformers)
+  --mlx-family {whisper,parakeet}
+                        When using the MLX backend, choose which model family to load. (default: whisper)
   --transcript-path TRANSCRIPT_PATH
                         Path to save the transcription output. (default: output.json)
   --model-name MODEL_NAME

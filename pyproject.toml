@@ -1,6 +1,6 @@
 [project]
 name = "insanely-fast-whisper"
-version = "0.0.15"
+version = "0.1.0"
 description = "An insanely fast whisper CLI"
 authors = [
     { name = "VB", email = "reachvaibhavs10@gmail.com" },
@@ -17,6 +17,13 @@ requires-python = ">=3.8"
 readme = "README.md"
 license = { text = "MIT" }
 
+[project.optional-dependencies]
+mlx = [
+    "mlx>=0.29.0; python_version >= '3.9'",
+    "mlx-whisper>=0.4.0; python_version >= '3.9'",
+    "parakeet-mlx>=0.4.0; python_version >= '3.10'",
+]
+
 
 [build-system]
 requires = ["pdm-backend"]
@@ -24,6 +31,9 @@ build-backend = "pdm.backend"
 
 [project.scripts]
 insanely-fast-whisper = "insanely_fast_whisper.cli:main"
+
+[dependency-groups]
+test = ["pytest>=8.3.0"]
 
 [project.urls]
 # Name based

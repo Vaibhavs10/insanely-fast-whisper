@@ -1,11 +1,18 @@
-import json
 import argparse
-from transformers import pipeline
-from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
-import torch
+import json
+from typing import Any, Dict, Iterable, Optional
+
+from rich.progress import BarColumn, Progress, TextColumn, TimeElapsedColumn
 
 from .utils.diarization_pipeline import diarize
 from .utils.result import build_result
+
+DEFAULT_TRANSFORMERS_MODEL = "openai/whisper-large-v3"
+MLX_DEFAULT_MODELS = {
+    "whisper": "mlx-community/whisper-large-v3",
+    "parakeet": "mlx-community/parakeet-tdt_ctc-110m",
+}
+
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
@@ -22,6 +29,20 @@ parser.add_argument(
     help='Device ID for your GPU. Just pass the device number when using CUDA, or "mps" for Macs with Apple Silicon. (default: "0")',
 )
 parser.add_argument(
+    "--backend",
+    required=False,
+    default="transformers",
+    choices=["transformers", "mlx"],
+    help="Transcription backend to use. Use 'transformers' for the original PyTorch pipeline or 'mlx' for Apple MLX models. (default: transformers)",
+)
+parser.add_argument(
+    "--mlx-family",
+    required=False,
+    default="whisper",
+    choices=["whisper", "parakeet"],
+    help="When using the MLX backend, choose which model family to load. (default: whisper)",
+)
+parser.add_argument(
     "--transcript-path",
     required=False,
     default="output.json",
@@ -31,7 +52,7 @@ parser.add_argument(
 parser.add_argument(
     "--model-name",
     required=False,
-    default="openai/whisper-large-v3",
+    default=DEFAULT_TRANSFORMERS_MODEL,
     type=str,
     help="Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v3)",
 )
@@ -108,6 +129,170 @@ parser.add_argument(
     help="Defines the maximum number of speakers that the system should consider in diarization. Must be at least 1. Cannot be used together with --num-speakers. Must be greater than or equal to --min-speakers if both are specified. (default: None)",
 )
 
+
+def _progress() -> Progress:
+    return Progress(
+        TextColumn("🤗 [progress.description]{task.description}"),
+        BarColumn(style="yellow1", pulse_style="white"),
+        TimeElapsedColumn(),
+    )
+
+
+def _transformers_backend(args, return_timestamps: Any, generate_kwargs: Dict[str, Any]):
+    try:
+        from transformers import pipeline
+    except ImportError:  # pragma: no cover - dependency guard
+        raise RuntimeError(
+            "Transformers backend requires the 'transformers' package. "
+            "Install it with `uv add transformers accelerate torch`."
+        )
+
+    try:
+        import torch
+    except ImportError as exc:  # pragma: no cover - dependency guard
+        raise RuntimeError(
+            "Transformers backend requires PyTorch. "
+            "Install it with `uv add torch`."
+        ) from exc
+
+    if args.device_id == "cpu":
+        device = "cpu"
+    elif args.device_id == "mps":
+        device = "mps"
+    else:
+        device = f"cuda:{args.device_id}"
+
+    torch_dtype = torch.float32 if device == "cpu" else torch.float16
+    model_kwargs = (
+        {"attn_implementation": "flash_attention_2"}
+        if args.flash
+        else {"attn_implementation": "sdpa"}
+    )
+
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=args.model_name,
+        torch_dtype=torch_dtype,
+        device=device,
+        model_kwargs=model_kwargs,
+    )
+
+    if device == "mps":
+        torch.mps.empty_cache()
+
+    with _progress() as progress:
+        progress.add_task("[yellow]Transcribing...", total=None)
+        outputs = pipe(
+            args.file_name,
+            chunk_length_s=30,
+            batch_size=args.batch_size,
+            generate_kwargs=generate_kwargs,
+            return_timestamps=return_timestamps,
+        )
+    return outputs
+
+
+def _chunks_from_segments(segments: Iterable[Dict[str, Any]]):
+    for segment in segments:
+        yield {
+            "text": segment.get("text", ""),
+            "timestamp": (segment.get("start"), segment.get("end")),
+        }
+
+
+def _chunks_from_words(segments: Iterable[Dict[str, Any]]):
+    for segment in segments:
+        words = segment.get("words", []) or []
+        for word in words:
+            text = word.get("word", word.get("text", ""))
+            yield {
+                "text": text,
+                "timestamp": (word.get("start"), word.get("end")),
+            }
+
+
+def _mlx_backend(args, language: Optional[str], want_words: bool):
+    if args.model_name == DEFAULT_TRANSFORMERS_MODEL:
+        args.model_name = MLX_DEFAULT_MODELS[args.mlx_family]
+
+    if args.mlx_family == "whisper":
+        try:
+            import mlx_whisper
+        except ImportError:
+            raise RuntimeError(
+                "MLX Whisper backend requires 'mlx' and 'mlx-whisper'. "
+                "Install them with `uv add .[mlx]`."
+            )
+
+        with _progress() as progress:
+            progress.add_task("[yellow]Transcribing...", total=None)
+            outputs = mlx_whisper.transcribe(
+                args.file_name,
+                path_or_hf_repo=args.model_name,
+                task=args.task,
+                language=language,
+                word_timestamps=want_words,
+            )
+
+        segments = outputs.get("segments", [])
+        if want_words:
+            chunks = list(_chunks_from_words(segments))
+            if not chunks:
+                chunks = list(_chunks_from_segments(segments))
+        else:
+            chunks = list(_chunks_from_segments(segments))
+
+        return {
+            "text": outputs.get("text", ""),
+            "chunks": chunks,
+        }
+
+    if args.mlx_family == "parakeet":
+        if args.task == "translate":
+            parser.error("Parakeet models do not currently support translation tasks.")
+
+        try:
+            from parakeet_mlx import from_pretrained
+        except ImportError:
+            raise RuntimeError(
+                "Parakeet MLX backend requires 'mlx' and 'parakeet-mlx'. "
+                "Install them with `uv add .[mlx]`."
+            )
+
+        with _progress() as progress:
+            task_id = progress.add_task("[yellow]Transcribing...", total=1.0)
+
+            def _on_chunk(current: float, total: float) -> None:
+                if total > 0:
+                    progress.update(
+                        task_id, completed=min(current, total), total=total
+                    )
+
+            model = from_pretrained(args.model_name)
+            result = model.transcribe(
+                args.file_name,
+                chunk_callback=_on_chunk,
+            )
+
+        if want_words:
+            chunks = [
+                {"text": token.text, "timestamp": (token.start, token.end)}
+                for token in result.tokens
+            ]
+        else:
+            chunks = [
+                {"text": sentence.text, "timestamp": (sentence.start, sentence.end)}
+                for sentence in result.sentences
+            ]
+
+        return {
+            "text": result.text,
+            "chunks": chunks,
+        }
+
+    parser.error(f"Unsupported MLX family '{args.mlx_family}'.")
+
+
 def main():
     args = parser.parse_args()
 
@@ -124,45 +309,19 @@ def main():
         parser.error("--max-speakers must be at least 1.")
 
     if args.min_speakers is not None and args.max_speakers is not None and args.min_speakers > args.max_speakers:
-        if args.min_speakers > args.max_speakers:
-            parser.error("--min-speakers cannot be greater than --max-speakers.")
+        parser.error("--min-speakers cannot be greater than --max-speakers.")
 
-    pipe = pipeline(
-        "automatic-speech-recognition",
-        model=args.model_name,
-        torch_dtype=torch.float16,
-        device="mps" if args.device_id == "mps" else f"cuda:{args.device_id}",
-        model_kwargs={"attn_implementation": "flash_attention_2"} if args.flash else {"attn_implementation": "sdpa"},
-    )
-
-    if args.device_id == "mps":
-        torch.mps.empty_cache()
-    # elif not args.flash:
-        # pipe.model = pipe.model.to_bettertransformer()
-
-    ts = "word" if args.timestamp == "word" else True
-
+    return_timestamps = "word" if args.timestamp == "word" else True
     language = None if args.language == "None" else args.language
 
     generate_kwargs = {"task": args.task, "language": language}
-
     if args.model_name.split(".")[-1] == "en":
         generate_kwargs.pop("task")
 
-    with Progress(
-        TextColumn("🤗 [progress.description]{task.description}"),
-        BarColumn(style="yellow1", pulse_style="white"),
-        TimeElapsedColumn(),
-    ) as progress:
-        progress.add_task("[yellow]Transcribing...", total=None)
-
-        outputs = pipe(
-            args.file_name,
-            chunk_length_s=30,
-            batch_size=args.batch_size,
-            generate_kwargs=generate_kwargs,
-            return_timestamps=ts,
-        )
+    if args.backend == "mlx":
+        outputs = _mlx_backend(args, language, args.timestamp == "word")
+    else:
+        outputs = _transformers_backend(args, return_timestamps, generate_kwargs)
 
     if args.hf_token != "no_token":
         speakers_transcript = diarize(args, outputs)
