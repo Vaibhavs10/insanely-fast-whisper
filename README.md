@@ -125,6 +125,24 @@ The root cause of this problem is still unknown, however, you can resolve this b
 
 The *mps* backend isn't as optimised as CUDA, hence is way more memory hungry. Typically you can run with `--batch-size 4` without any issues (should use roughly 12GB GPU VRAM). Don't forget to set `--device-id mps`.
 
+**How to fix `TypeError: Cannot convert a MPS Tensor to float64` on Mac?**
+
+This error occurs on Macs with Apple Silicon (M1/M2/M3) when using older versions of the `transformers` library. The MPS backend doesn't support float64 dtype.
+
+**Solution:** Upgrade to `transformers>=4.48.0` which includes the MPS fix:
+
+```bash
+pip install --upgrade transformers
+```
+
+If you're using `pipx`, upgrade transformers in the isolated environment:
+
+```bash
+pipx runpip insanely-fast-whisper install --upgrade transformers
+```
+
+The issue was fixed in [transformers PR #35295](https://github.com/huggingface/transformers/pull/35295) (December 2024). If upgrading doesn't work, ensure you're on the latest version of `insanely-fast-whisper`.
+
 ## How to use Whisper without a CLI?
 
 <details>
