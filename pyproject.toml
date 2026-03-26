@@ -7,7 +7,7 @@ authors = [
     { name = "Patrick Arminio", email = "patrick.arminio@gmail.com" },
 ]
 dependencies = [
-    "transformers",
+    "transformers>=4.48.0",  # Minimum version for MPS float64 fix (PR #35295)
     "accelerate",
     "pyannote-audio>=3.1.0",
     "setuptools>=68.2.2",
