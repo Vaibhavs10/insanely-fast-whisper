@@ -51,6 +51,9 @@ def preprocess_inputs(inputs):
             "We expect a single channel audio input for ASRDiarizePipeline"
         )
 
+    # Ensure float32 for consistent processing (prevents CUDA dtype mismatches)
+    inputs = inputs.astype(np.float32)
+
     # diarization model expects float32 torch tensor of shape `(channels, seq_len)`
     diarizer_inputs = torch.from_numpy(inputs).float()
     diarizer_inputs = diarizer_inputs.unsqueeze(0)
@@ -75,6 +78,10 @@ def diarize_audio(diarizer_inputs, diarization_pipeline, num_speakers, min_speak
                 "label": label,
             }
         )
+
+    # Guard against empty diarization output (no speech detected)
+    if len(segments) == 0:
+        return []
 
     # diarizer output may contain consecutive segments from the same speaker (e.g. {(0 -> 1, speaker_1), (1 -> 1.5, speaker_1), ...})
     # we combine these segments to give overall timestamps for each speaker's turn (e.g. {(0 -> 1.5, speaker_1), ...})
@@ -118,12 +125,20 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
         [chunk["timestamp"][-1] if chunk["timestamp"][-1] is not None else sys.float_info.max for chunk in transcript])
     segmented_preds = []
 
+    # Guard against empty transcripts (edge case: no speech detected by ASR)
+    if len(transcript) == 0 or len(end_timestamps) == 0:
+        return segmented_preds
+
     # align the diarizer timestamps and the ASR timestamps
     for segment in new_segments:
+        # Guard against empty end_timestamps (all ASR chunks already consumed)
+        if len(end_timestamps) == 0:
+            break
+
         # get the diarizer end timestamp
         end_time = segment["segment"]["end"]
         # find the ASR end timestamp that is closest to the diarizer's end timestamp and cut the transcript to here
-        upto_idx = np.argmin(np.abs(end_timestamps - end_time))
+        upto_idx = int(np.argmin(np.abs(end_timestamps - end_time)))
 
         if group_by_speaker:
             segmented_preds.append(
@@ -145,8 +160,5 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
         # crop the transcripts and timestamp lists according to the latest timestamp (for faster argmin)
         transcript = transcript[upto_idx + 1:]
         end_timestamps = end_timestamps[upto_idx + 1:]
-
-        if len(end_timestamps) == 0:
-            break 
 
     return segmented_preds
