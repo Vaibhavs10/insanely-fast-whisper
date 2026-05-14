@@ -76,6 +76,12 @@ def diarize_audio(diarizer_inputs, diarization_pipeline, num_speakers, min_speak
             }
         )
 
+    # No speakers detected (e.g. audio is silent, music-only, or otherwise
+    # contains no recognizable speech). Return an empty list rather than
+    # IndexError-ing on segments[0] below.
+    if not segments:
+        return []
+
     # diarizer output may contain consecutive segments from the same speaker (e.g. {(0 -> 1, speaker_1), (1 -> 1.5, speaker_1), ...})
     # we combine these segments to give overall timestamps for each speaker's turn (e.g. {(0 -> 1.5, speaker_1), ...})
     new_segments = []
