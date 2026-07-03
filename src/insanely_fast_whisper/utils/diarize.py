@@ -76,6 +76,10 @@ def diarize_audio(diarizer_inputs, diarization_pipeline, num_speakers, min_speak
             }
         )
 
+    # the diarizer may find no speech at all (e.g. silence or music-only audio)
+    if not segments:
+        return []
+
     # diarizer output may contain consecutive segments from the same speaker (e.g. {(0 -> 1, speaker_1), (1 -> 1.5, speaker_1), ...})
     # we combine these segments to give overall timestamps for each speaker's turn (e.g. {(0 -> 1.5, speaker_1), ...})
     new_segments = []
@@ -120,6 +124,9 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
 
     # align the diarizer timestamps and the ASR timestamps
     for segment in new_segments:
+        # stop once every transcript chunk has been assigned a speaker
+        if len(end_timestamps) == 0:
+            break
         # get the diarizer end timestamp
         end_time = segment["segment"]["end"]
         # find the ASR end timestamp that is closest to the diarizer's end timestamp and cut the transcript to here
@@ -145,8 +152,5 @@ def post_process_segments_and_transcripts(new_segments, transcript, group_by_spe
         # crop the transcripts and timestamp lists according to the latest timestamp (for faster argmin)
         transcript = transcript[upto_idx + 1:]
         end_timestamps = end_timestamps[upto_idx + 1:]
-
-        if len(end_timestamps) == 0:
-            break 
 
     return segmented_preds
