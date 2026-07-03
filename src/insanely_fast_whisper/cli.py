@@ -7,6 +7,26 @@ import torch
 from .utils.diarization_pipeline import diarize
 from .utils.result import build_result
 
+
+def disable_torchcodec_if_broken():
+    """Hide an unusable torchcodec install from the transformers ASR pipeline.
+
+    transformers imports torchcodec whenever the package is present, even for
+    inputs that never need it. torchcodec wheels are binary-tied to a specific
+    torch release but declare no torch requirement in their metadata, so
+    resolvers routinely install mismatched pairs whose import crashes with an
+    OSError -- taking every transcription down with it.
+    """
+    try:
+        import torchcodec  # noqa: F401
+        return False
+    except Exception:
+        from transformers.pipelines import automatic_speech_recognition
+
+        if hasattr(automatic_speech_recognition, "is_torchcodec_available"):
+            automatic_speech_recognition.is_torchcodec_available = lambda: False
+        return True
+
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
     "--file-name",
@@ -110,6 +130,13 @@ parser.add_argument(
 
 def main():
     args = parser.parse_args()
+
+    if disable_torchcodec_if_broken():
+        print(
+            "⚠️ The installed torchcodec package cannot be loaded (it was likely "
+            "built for a different torch or FFmpeg version). Ignoring it and "
+            "decoding audio with ffmpeg instead."
+        )
 
     if args.num_speakers is not None and (args.min_speakers is not None or args.max_speakers is not None):
         parser.error("--num-speakers cannot be used together with --min-speakers or --max-speakers.")
