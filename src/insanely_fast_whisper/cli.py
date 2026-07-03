@@ -7,6 +7,20 @@ import torch
 from .utils.diarization_pipeline import diarize
 from .utils.result import build_result
 
+
+def str2bool(value):
+    if isinstance(value, bool):
+        return value
+    normalized = value.strip().lower()
+    if normalized in ("true", "1", "yes", "y"):
+        return True
+    if normalized in ("false", "0", "no", "n"):
+        return False
+    raise argparse.ArgumentTypeError(
+        f"Expected a boolean value (true/false), got {value!r}."
+    )
+
+
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
 parser.add_argument(
     "--file-name",
@@ -60,7 +74,9 @@ parser.add_argument(
 parser.add_argument(
     "--flash",
     required=False,
-    type=bool,
+    type=str2bool,
+    nargs="?",
+    const=True,
     default=False,
     help="Use Flash Attention 2. Read the FAQs to see how to install FA2 correctly. (default: False)",
 )
