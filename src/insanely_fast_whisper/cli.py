@@ -1,10 +1,12 @@
 import json
 import argparse
-from transformers import pipeline
+import mimetypes
+import uuid
+from pathlib import Path
+from typing import Any
+from urllib import request
 from rich.progress import Progress, TimeElapsedColumn, BarColumn, TextColumn
-import torch
 
-from .utils.diarization_pipeline import diarize
 from .utils.result import build_result
 
 parser = argparse.ArgumentParser(description="Automatic Speech Recognition")
@@ -34,6 +36,28 @@ parser.add_argument(
     default="openai/whisper-large-v3",
     type=str,
     help="Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v3)",
+)
+parser.add_argument(
+    "--backend",
+    required=False,
+    default="transformers",
+    type=str,
+    choices=["transformers", "openai-compatible"],
+    help="ASR backend to use. Use openai-compatible for local servers such as FunASR/SenseVoice. (default: transformers)",
+)
+parser.add_argument(
+    "--openai-compatible-url",
+    required=False,
+    default="http://127.0.0.1:8000/v1/audio/transcriptions",
+    type=str,
+    help="OpenAI-compatible transcription endpoint used when --backend openai-compatible.",
+)
+parser.add_argument(
+    "--openai-compatible-api-key",
+    required=False,
+    default=None,
+    type=str,
+    help="Optional bearer token for --backend openai-compatible.",
 )
 parser.add_argument(
     "--task",
@@ -108,24 +132,78 @@ parser.add_argument(
     help="Defines the maximum number of speakers that the system should consider in diarization. Must be at least 1. Cannot be used together with --num-speakers. Must be greater than or equal to --min-speakers if both are specified. (default: None)",
 )
 
-def main():
-    args = parser.parse_args()
+def _normalize_transcription_response(response: dict[str, Any]) -> dict[str, Any]:
+    chunks = []
+    for segment in response.get("segments") or []:
+        if not isinstance(segment, dict):
+            continue
+        chunks.append(
+            {
+                "text": segment.get("text", ""),
+                "timestamp": [segment.get("start"), segment.get("end")],
+            }
+        )
 
-    if args.num_speakers is not None and (args.min_speakers is not None or args.max_speakers is not None):
-        parser.error("--num-speakers cannot be used together with --min-speakers or --max-speakers.")
+    return {"text": response.get("text", ""), "chunks": chunks}
 
-    if args.num_speakers is not None and args.num_speakers < 1:
-        parser.error("--num-speakers must be at least 1.")
 
-    if args.min_speakers is not None and args.min_speakers < 1:
-        parser.error("--min-speakers must be at least 1.")
+def _build_multipart_body(fields: dict[str, str], file_path: str) -> tuple[bytes, str]:
+    path = Path(file_path)
+    if not path.is_file():
+        raise ValueError("--backend openai-compatible requires --file-name to be a local file path")
 
-    if args.max_speakers is not None and args.max_speakers < 1:
-        parser.error("--max-speakers must be at least 1.")
+    boundary = f"----insanely-fast-whisper-{uuid.uuid4().hex}"
+    body = bytearray()
 
-    if args.min_speakers is not None and args.max_speakers is not None and args.min_speakers > args.max_speakers:
-        if args.min_speakers > args.max_speakers:
-            parser.error("--min-speakers cannot be greater than --max-speakers.")
+    for name, value in fields.items():
+        body.extend(f"--{boundary}\r\n".encode())
+        body.extend(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode())
+        body.extend(str(value).encode())
+        body.extend(b"\r\n")
+
+    content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+    body.extend(f"--{boundary}\r\n".encode())
+    body.extend(
+        (
+            f'Content-Disposition: form-data; name="file"; filename="{path.name}"\r\n'
+            f"Content-Type: {content_type}\r\n\r\n"
+        ).encode()
+    )
+    body.extend(path.read_bytes())
+    body.extend(b"\r\n")
+    body.extend(f"--{boundary}--\r\n".encode())
+    return bytes(body), f"multipart/form-data; boundary={boundary}"
+
+
+def transcribe_openai_compatible(args) -> dict[str, Any]:
+    language = None if args.language == "None" else args.language
+    fields = {
+        "model": args.model_name,
+        "response_format": "verbose_json",
+    }
+    if language:
+        fields["language"] = language
+
+    body, content_type = _build_multipart_body(fields, args.file_name)
+    headers = {"Content-Type": content_type}
+    if args.openai_compatible_api_key:
+        headers["Authorization"] = f"Bearer {args.openai_compatible_api_key}"
+
+    transcription_request = request.Request(
+        args.openai_compatible_url,
+        data=body,
+        headers=headers,
+        method="POST",
+    )
+    with request.urlopen(transcription_request) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+
+    return _normalize_transcription_response(payload)
+
+
+def transcribe_transformers(args) -> dict[str, Any]:
+    import torch
+    from transformers import pipeline
 
     pipe = pipeline(
         "automatic-speech-recognition",
@@ -149,6 +227,34 @@ def main():
     if args.model_name.split(".")[-1] == "en":
         generate_kwargs.pop("task")
 
+    return pipe(
+        args.file_name,
+        chunk_length_s=30,
+        batch_size=args.batch_size,
+        generate_kwargs=generate_kwargs,
+        return_timestamps=ts,
+    )
+
+
+def main():
+    args = parser.parse_args()
+
+    if args.num_speakers is not None and (args.min_speakers is not None or args.max_speakers is not None):
+        parser.error("--num-speakers cannot be used together with --min-speakers or --max-speakers.")
+
+    if args.num_speakers is not None and args.num_speakers < 1:
+        parser.error("--num-speakers must be at least 1.")
+
+    if args.min_speakers is not None and args.min_speakers < 1:
+        parser.error("--min-speakers must be at least 1.")
+
+    if args.max_speakers is not None and args.max_speakers < 1:
+        parser.error("--max-speakers must be at least 1.")
+
+    if args.min_speakers is not None and args.max_speakers is not None and args.min_speakers > args.max_speakers:
+        if args.min_speakers > args.max_speakers:
+            parser.error("--min-speakers cannot be greater than --max-speakers.")
+
     with Progress(
         TextColumn("🤗 [progress.description]{task.description}"),
         BarColumn(style="yellow1", pulse_style="white"),
@@ -156,15 +262,14 @@ def main():
     ) as progress:
         progress.add_task("[yellow]Transcribing...", total=None)
 
-        outputs = pipe(
-            args.file_name,
-            chunk_length_s=30,
-            batch_size=args.batch_size,
-            generate_kwargs=generate_kwargs,
-            return_timestamps=ts,
-        )
+        if args.backend == "openai-compatible":
+            outputs = transcribe_openai_compatible(args)
+        else:
+            outputs = transcribe_transformers(args)
 
     if args.hf_token != "no_token":
+        from .utils.diarization_pipeline import diarize
+
         speakers_transcript = diarize(args, outputs)
         with open(args.transcript_path, "w", encoding="utf8") as fp:
             result = build_result(speakers_transcript, outputs)
