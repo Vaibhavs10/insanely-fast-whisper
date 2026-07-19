@@ -66,6 +66,19 @@ insanely-fast-whisper --file-name <filename or URL> --flash True
 insanely-fast-whisper --model-name distil-whisper/large-v2 --file-name <filename or URL> 
 ```
 
+You can also point the CLI at a local OpenAI-compatible transcription server,
+such as FunASR/SenseVoice:
+
+```bash
+funasr-server --model iic/SenseVoiceSmall --host 127.0.0.1 --port 8000
+
+insanely-fast-whisper \
+  --backend openai-compatible \
+  --openai-compatible-url http://127.0.0.1:8000/v1/audio/transcriptions \
+  --model-name iic/SenseVoiceSmall \
+  --file-name meeting.wav
+```
+
 Don't want to install `insanely-fast-whisper`? Just use `pipx run`:
 
 ```bash
@@ -89,6 +102,12 @@ The `insanely-fast-whisper` repo provides an all round support for running Whisp
                         Path to save the transcription output. (default: output.json)
   --model-name MODEL_NAME
                         Name of the pretrained model/ checkpoint to perform ASR. (default: openai/whisper-large-v3)
+  --backend {transformers,openai-compatible}
+                        ASR backend to use. Use openai-compatible for local servers such as FunASR/SenseVoice. (default: transformers)
+  --openai-compatible-url OPENAI_COMPATIBLE_URL
+                        OpenAI-compatible transcription endpoint used when --backend openai-compatible.
+  --openai-compatible-api-key OPENAI_COMPATIBLE_API_KEY
+                        Optional bearer token for --backend openai-compatible.
   --task {transcribe,translate}
                         Task to perform: transcribe or translate to another language. (default: transcribe)
   --language LANGUAGE   
